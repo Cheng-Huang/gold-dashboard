@@ -1,0 +1,39 @@
+name: Update Gold Dashboard Data
+
+on:
+  schedule:
+    # 每天 UTC 22:00 运行（美东收盘后，北京时间次日 6:00）
+    - cron: '0 22 * * 1-5'
+  workflow_dispatch:  # 手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests numpy yfinance
+
+      - name: Fetch data
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python fetch_data.py
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/dashboard.json
+          # 只在有变化时提交
+          git diff --staged --quiet || git commit -m "📊 auto-update dashboard data $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push

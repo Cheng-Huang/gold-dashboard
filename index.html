@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黄金投资 Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --bg2: #1a1a2e;
+    --bg3: #16213e;
+    --gold: #f0c040;
+    --gold-dim: #c9a020;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --blue: #3b82f6;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --border: #334155;
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--bg2), var(--bg3));
+    border-bottom: 2px solid var(--gold-dim);
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header h1 {
+    font-size: 1.6rem;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header h1::before { content: "◆"; font-size: 1.2rem; }
+  .header .update-time { color: var(--text2); font-size: 0.85rem; }
+  /* Container */
+  .container { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+  /* Section title */
+  .section-title {
+    font-size: 1.15rem;
+    color: var(--gold);
+    margin: 28px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before { content: "▎"; color: var(--gold); }
+  /* Cards grid */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .card .label { font-size: 0.8rem; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 1.65rem; font-weight: 700; }
+  .card .sub { font-size: 0.8rem; margin-top: 4px; }
+  .card .arrow { font-size: 0.85rem; }
+  .card-gold .value { color: var(--gold); }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+  .neutral-c { color: var(--yellow); }
+  /* Signal badge */
+  .signal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+  }
+  .signal-badge.bullish { background: rgba(34,197,94,0.15); color: var(--green); }
+  .signal-badge.bearish { background: rgba(239,68,68,0.15); color: var(--red); }
+  .signal-badge.neutral { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  /* Two column layout */
+  .two-col { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; margin-top: 14px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  /* Chart panel */
+  .chart-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .chart-tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+  .chart-tab {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chart-tab:hover { border-color: var(--gold-dim); color: var(--text); }
+  .chart-tab.active { background: var(--gold-dim); color: #000; border-color: var(--gold); font-weight: 600; }
+  .chart-wrap { position: relative; height: 340px; }
+  .time-range { display: flex; gap: 4px; margin-top: 10px; justify-content: flex-end; }
+  .time-btn {
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .time-btn.active, .time-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--gold-dim); }
+  /* Gauge & Radar */
+  .gauge-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .gauge-container { text-align: center; }
+  .gauge-value { font-size: 3rem; font-weight: 800; }
+  .gauge-label { font-size: 1.1rem; font-weight: 600; margin-top: 2px; }
+  .gauge-bar {
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--green), #86efac, var(--yellow), #fca5a5, var(--red));
+    position: relative;
+    margin-top: 10px;
+  }
+  .gauge-needle {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 20px;
+    background: #fff;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(255,255,255,0.5);
+  }
+  .gauge-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text2); margin-top: 4px; }
+  .radar-wrap { height: 240px; }
+  /* Signals */
+  .signals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px; }
+  @media (max-width: 768px) { .signals-grid { grid-template-columns: 1fr; } }
+  .signal-col {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .signal-col h3 { font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .signal-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(51,65,85,0.5);
+  }
+  .signal-item:last-child { border-bottom: none; }
+  .signal-strength { font-size: 0.85rem; letter-spacing: 1px; }
+  .signal-title { font-weight: 600; font-size: 0.9rem; margin-left: 8px; }
+  .signal-detail { font-size: 0.78rem; color: var(--text2); margin-top: 3px; padding-left: 4px; }
+  /* Risk matrix */
+  .risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 0.85rem;
+  }
+  .risk-table th {
+    background: var(--bg3);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--gold);
+    border-bottom: 2px solid var(--border);
+  }
+  .risk-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .risk-table tr:hover td { background: rgba(26,26,46,0.5); }
+  .risk-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .risk-low { background: rgba(34,197,94,0.15); color: var(--green); }
+  .risk-medium { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .risk-high { background: rgba(239,68,68,0.15); color: var(--red); }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 0.7rem; margin: 1px 2px; }
+  .tag-risk { background: rgba(239,68,68,0.1); color: #fca5a5; }
+  .tag-opp { background: rgba(34,197,94,0.1); color: #86efac; }
+  /* Outlook */
+  .outlook-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 14px; }
+  @media (max-width: 768px) { .outlook-grid { grid-template-columns: 1fr; } }
+  .outlook-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .outlook-card h4 { font-size: 0.95rem; margin-bottom: 10px; color: var(--text2); }
+  .outlook-dir { font-size: 1.8rem; font-weight: 800; }
+  .outlook-conf { font-size: 0.75rem; color: var(--text2); }
+  .outlook-factors { margin-top: 10px; font-size: 0.8rem; color: var(--text2); }
+  .outlook-factors li { margin: 3px 0; list-style: none; }
+  .outlook-factors li::before { content: "▸ "; color: var(--gold-dim); }
+  .outlook-summary { margin-top: 10px; font-size: 0.85rem; padding: 8px 12px; background: var(--bg3); border-radius: 8px; }
+  /* Technicals */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 14px; }
+  .tech-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .tech-item .t-label { font-size: 0.72rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .tech-item .t-value { font-size: 1.2rem; font-weight: 700; margin-top: 4px; }
+  .tech-item .t-note { font-size: 0.7rem; color: var(--text2); margin-top: 2px; }
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding: 20px 32px;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text2);
+    text-align: center;
+    line-height: 1.8;
+  }
+  .footer a { color: var(--blue); text-decoration: none; }
+  /* Loading overlay */
+  #loading {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 4px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div style="color:var(--gold)">加载数据中...</div>
+</div>
+
+<header class="header">
+  <h1>黄金投资 Dashboard</h1>
+  <div class="update-time" id="updateTime">最后更新: --</div>
+</header>
+
+<div class="container">
+
+  <!-- [A] 综合信号面板 -->
+  <div class="section-title">综合信号面板</div>
+  <div class="cards" id="summaryCards"></div>
+
+  <!-- [B] + [C] 走势图 + 情绪 -->
+  <div class="section-title">核心驱动因子 & 市场情绪</div>
+  <div class="two-col">
+    <div class="chart-panel">
+      <div class="chart-tabs" id="chartTabs"></div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      <div class="time-range" id="timeRange"></div>
+    </div>
+    <div class="gauge-panel">
+      <div>
+        <div style="font-size:0.85rem;color:var(--text2);margin-bottom:8px">黄金市场情绪指数</div>
+        <div class="gauge-container">
+          <div class="gauge-value" id="gaugeValue">--</div>
+          <div class="gauge-label" id="gaugeLabel">--</div>
+          <div class="gauge-bar"><div class="gauge-needle" id="gaugeNeedle"></div></div>
+          <div class="gauge-labels"><span>极度恐惧</span><span>恐惧</span><span>中性</span><span>贪婪</span><span>极度贪婪</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.85rem;color:var(--text2);margin-bottom:8px">驱动因子雷达图</div>
+        <div class="radar-wrap"><canvas id="radarChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- [D] 利好/利空信号 -->
+  <div class="section-title">利好 / 利空信号</div>
+  <div class="signals-grid">
+    <div class="signal-col" id="bullishSignals">
+      <h3><span style="color:var(--green)">▲</span> 利好信号</h3>
+    </div>
+    <div class="signal-col" id="bearishSignals">
+      <h3><span style="color:var(--red)">▼</span> 利空信号</h3>
+    </div>
+  </div>
+
+  <!-- [E] 风险矩阵 -->
+  <div class="section-title">投资标的风险矩阵</div>
+  <div style="overflow-x:auto">
+    <table class="risk-table" id="riskTable">
+      <thead>
+        <tr>
+          <th>投资标的</th>
+          <th>风险等级</th>
+          <th>核心关注因子</th>
+          <th>风险信号</th>
+          <th>机会信号</th>
+          <th>建议仓位</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- [F] 走势预期 -->
+  <div class="section-title">走势预期</div>
+  <div class="outlook-grid" id="outlookGrid"></div>
+
+  <!-- [G] 技术面快照 -->
+  <div class="section-title">技术面快照</div>
+  <div class="tech-grid" id="techGrid"></div>
+
+</div>
+
+<footer class="footer">
+  数据来源：<a href="https://fred.stlouisfed.org" target="_blank">FRED</a> (美联储经济数据)、
+  <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a>、
+  <a href="https://www.cftc.gov" target="_blank">CFTC</a><br>
+  ⚠️ 本 Dashboard 仅供信息参考，不构成任何投资建议。所有数据可能存在延迟或误差。投资有风险，入市需谨慎。历史数据不代表未来表现。
+</footer>
+
+<script>
+// ── 全局状态 ─────────────────────────────────────
+let DATA = null;
+let mainChart = null;
+let radarChart = null;
+let currentChartTab = 0;
+let currentTimeRange = 365; // days
+
+const CHART_CONFIGS = [
+  { label: '实际利率 vs 金价', keys: ['realYield', 'gold'], colors: ['#3b82f6', '#f0c040'], invertLeft: true },
+  { label: '美元指数 vs 金价', keys: ['dxy', 'gold'], colors: ['#a78bfa', '#f0c040'], invertLeft: false },
+  { label: '通胀预期 (Breakeven)', keys: ['breakeven'], colors: ['#f97316'], invertLeft: false },
+  { label: '美联储资产 vs 金价', keys: ['fedAssets', 'gold'], colors: ['#14b8a6', '#f0c040'], invertLeft: false },
+  { label: 'VIX 恐慌指数', keys: ['vix'], colors: ['#ef4444'], invertLeft: false },
+];
+
+const TIME_RANGES = [
+  { label: '1M', days: 30 }, { label: '3M', days: 90 }, { label: '6M', days: 180 },
+  { label: '1Y', days: 365 }, { label: '3Y', days: 1095 },
+];
+
+const KEY_LABELS = { realYield: '10Y实际利率(%)', gold: '黄金价格($)', dxy: '美元指数', breakeven: '通胀预期(%)', fedAssets: '美联储总资产(百万$)', vix: 'VIX' };
+
+// ── 数据加载 ─────────────────────────────────────
+async function loadData() {
+  try {
+    const resp = await fetch('data/dashboard.json');
+    DATA = await resp.json();
+    render();
+  } catch (e) {
+    document.getElementById('loading').innerHTML = `<div style="color:var(--red)">数据加载失败: ${e.message}<br><small>请先运行 python3 fetch_data.py</small></div>`;
+  }
+}
+
+// ── 渲染入口 ─────────────────────────────────────
+function render() {
+  document.getElementById('loading').style.display = 'none';
+  renderHeader();
+  renderSummaryCards();
+  renderChartTabs();
+  renderTimeRange();
+  renderMainChart();
+  renderGauge();
+  renderRadar();
+  renderSignals();
+  renderRiskMatrix();
+  renderOutlook();
+  renderTechnicals();
+}
+
+// ── Header ─────────────────────────────────────
+function renderHeader() {
+  const d = new Date(DATA.lastUpdated);
+  document.getElementById('updateTime').textContent = `最后更新: ${d.toLocaleDateString('zh-CN')} ${d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// ── [A] Summary Cards ─────────────────────────
+function renderSummaryCards() {
+  const p = DATA.prices;
+  const ry = DATA.coreFactors.realYield;
+  const dx = DATA.coreFactors.dollarIndex;
+  const sent = DATA.sentiment;
+  const vol = DATA.volatility;
+  const sig = DATA.overallSignal;
+
+  const pctClass = v => v >= 0 ? 'up' : 'down';
+  const arrow = v => v >= 0 ? '↑' : '↓';
+  const trendArrow = t => t === 'declining' ? '↓' : (t === 'rising' ? '↑' : '→');
+  // 实际利率/美元：上升利空→红，下降利好→绿 (反向)
+  const invClass = t => t === 'declining' ? 'up' : (t === 'rising' ? 'down' : 'neutral-c');
+
+  const sentColor = s => s <= 20 ? 'var(--green)' : s <= 40 ? '#86efac' : s <= 60 ? 'var(--yellow)' : s <= 80 ? '#fca5a5' : 'var(--red)';
+  const volColor = l => l === 'low' ? 'var(--green)' : l === 'high' ? 'var(--red)' : 'var(--yellow)';
+  const volLabel = l => l === 'low' ? '低' : l === 'high' ? '高' : '中';
+  const sigIcon = d => d === 'bullish' ? '🟢' : d === 'bearish' ? '🔴' : '🟡';
+  const sigClass = d => d === 'bullish' ? 'bullish' : d === 'bearish' ? 'bearish' : 'neutral';
+
+  const cards = [
+    { cls: 'card-gold', label: '黄金价格', value: `$${fmt(p.gold.value, 0)}`, sub: `<span class="${pctClass(p.gold.changePct1d)}">${arrow(p.gold.changePct1d)} ${p.gold.changePct1d > 0 ? '+' : ''}${p.gold.changePct1d.toFixed(2)}%</span>` },
+    { label: '10Y 实际利率', value: `${ry.current.toFixed(2)}%`, sub: `<span class="${invClass(ry.trend)}">${trendArrow(ry.trend)} ${ry.trend === 'declining' ? '下行' : '上行'}</span>` },
+    { label: '美元指数', value: `${dx.current.toFixed(1)}`, sub: `<span class="${invClass(dx.trend)}">${trendArrow(dx.trend)} 20日ROC: ${dx.roc20d !== null ? dx.roc20d.toFixed(1)+'%' : 'N/A'}</span>` },
+    { label: '市场情绪', value: `<span style="color:${sentColor(sent.score)}">${sent.score}</span>`, sub: `<span style="color:${sentColor(sent.score)}">${sent.label}</span>` },
+    { label: '波动率 (20日)', value: `<span style="color:${volColor(vol.level)}">${vol.current20d !== null ? vol.current20d.toFixed(1) + '%' : 'N/A'}</span>`, sub: `<span style="color:${volColor(vol.level)}">${volLabel(vol.level)}</span>` },
+    { label: '综合信号', value: `<div class="signal-badge ${sigClass(sig.direction)}">${sigIcon(sig.direction)} ${sig.label}</div>`, sub: `多:${sig.bullScore} / 空:${sig.bearScore}` },
+  ];
+
+  const el = document.getElementById('summaryCards');
+  el.innerHTML = cards.map(c => `
+    <div class="card ${c.cls || ''}">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+// ── [B] Chart Tabs ────────────────────────────
+function renderChartTabs() {
+  const el = document.getElementById('chartTabs');
+  el.innerHTML = CHART_CONFIGS.map((c, i) =>
+    `<button class="chart-tab ${i === currentChartTab ? 'active' : ''}" onclick="switchChart(${i})">${c.label}</button>`
+  ).join('');
+}
+
+function renderTimeRange() {
+  const el = document.getElementById('timeRange');
+  el.innerHTML = TIME_RANGES.map(t =>
+    `<button class="time-btn ${t.days === currentTimeRange ? 'active' : ''}" onclick="switchTime(${t.days})">${t.label}</button>`
+  ).join('');
+}
+
+function switchChart(idx) {
+  currentChartTab = idx;
+  renderChartTabs();
+  renderMainChart();
+}
+
+function switchTime(days) {
+  currentTimeRange = days;
+  renderTimeRange();
+  renderMainChart();
+}
+
+function renderMainChart() {
+  const cfg = CHART_CONFIGS[currentChartTab];
+  const ctx = document.getElementById('mainChart').getContext('2d');
+
+  if (mainChart) mainChart.destroy();
+
+  const datasets = [];
+  const allDates = new Set();
+
+  cfg.keys.forEach((key, i) => {
+    const hist = DATA.history[key] || [];
+    const sliced = hist.slice(-currentTimeRange);
+    sliced.forEach(d => allDates.add(d.date));
+  });
+
+  const sortedDates = [...allDates].sort();
+
+  cfg.keys.forEach((key, i) => {
+    const hist = DATA.history[key] || [];
+    const sliced = hist.slice(-currentTimeRange);
+    const map = {};
+    sliced.forEach(d => map[d.date] = d.value);
+
+    datasets.push({
+      label: KEY_LABELS[key] || key,
+      data: sortedDates.map(d => map[d] ?? null),
+      borderColor: cfg.colors[i],
+      backgroundColor: cfg.colors[i] + '20',
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.3,
+      fill: cfg.keys.length === 1,
+      yAxisID: i === 0 ? 'y' : (cfg.keys.length > 1 ? 'y1' : 'y'),
+      spanGaps: true,
+    });
+  });
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: true, labels: { color: '#94a3b8', font: { size: 11 } } },
+      tooltip: {
+        backgroundColor: 'rgba(15,15,26,0.95)',
+        titleColor: '#f0c040',
+        bodyColor: '#e2e8f0',
+        borderColor: '#334155',
+        borderWidth: 1,
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: '#64748b', maxTicksLimit: 8, font: { size: 10 } },
+        grid: { color: 'rgba(51,65,85,0.3)' },
+      },
+      y: {
+        position: 'left',
+        reverse: cfg.invertLeft,
+        ticks: { color: cfg.colors[0], font: { size: 10 } },
+        grid: { color: 'rgba(51,65,85,0.3)' },
+      },
+    },
+  };
+
+  if (cfg.keys.length > 1) {
+    options.scales.y1 = {
+      position: 'right',
+      ticks: { color: cfg.colors[1], font: { size: 10 } },
+      grid: { drawOnChartArea: false },
+    };
+  }
+
+  mainChart = new Chart(ctx, { type: 'line', data: { labels: sortedDates, datasets }, options });
+}
+
+// ── [C] Gauge ──────────────────────────────────
+function renderGauge() {
+  const s = DATA.sentiment;
+  const el = document.getElementById('gaugeValue');
+  const sentColor = v => v <= 20 ? 'var(--green)' : v <= 40 ? '#86efac' : v <= 60 ? 'var(--yellow)' : v <= 80 ? '#fca5a5' : 'var(--red)';
+  el.style.color = sentColor(s.score);
+  el.textContent = s.score.toFixed(0);
+  document.getElementById('gaugeLabel').style.color = sentColor(s.score);
+  document.getElementById('gaugeLabel').textContent = s.label;
+  document.getElementById('gaugeNeedle').style.left = `${s.score}%`;
+}
+
+// ── [C] Radar ──────────────────────────────────
+function renderRadar() {
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const radar = DATA.radar;
+  if (radarChart) radarChart.destroy();
+
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: radar.map(r => r.axis),
+      datasets: [{
+        label: '因子支撑强度',
+        data: radar.map(r => r.value),
+        fill: true,
+        backgroundColor: 'rgba(240,192,64,0.2)',
+        borderColor: '#f0c040',
+        borderWidth: 2,
+        pointBackgroundColor: '#f0c040',
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 10,
+          ticks: { stepSize: 2, color: '#64748b', backdropColor: 'transparent', font: { size: 9 } },
+          grid: { color: 'rgba(51,65,85,0.4)' },
+          angleLines: { color: 'rgba(51,65,85,0.4)' },
+          pointLabels: { color: '#94a3b8', font: { size: 11 } },
+        }
+      }
+    }
+  });
+}
+
+// ── [D] Signals ────────────────────────────────
+function renderSignals() {
+  const dots = (strength, maxS = 5) => {
+    let s = '';
+    for (let i = 0; i < maxS; i++) s += i < strength ? '●' : '○';
+    return s;
+  };
+
+  const renderList = (signals, color) => signals.map(s => `
+    <div class="signal-item">
+      <div><span class="signal-strength" style="color:${color}">${dots(s.strength)}</span><span class="signal-title">${s.title}</span></div>
+      <div class="signal-detail">${s.detail}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('bullishSignals').innerHTML =
+    `<h3><span style="color:var(--green)">▲</span> 利好信号 (${DATA.signals.bullish.length})</h3>` +
+    (DATA.signals.bullish.length ? renderList(DATA.signals.bullish, 'var(--green)') : '<div class="signal-detail">暂无明显利好信号</div>');
+
+  document.getElementById('bearishSignals').innerHTML =
+    `<h3><span style="color:var(--red)">▼</span> 利空信号 (${DATA.signals.bearish.length})</h3>` +
+    (DATA.signals.bearish.length ? renderList(DATA.signals.bearish, 'var(--red)') : '<div class="signal-detail">暂无明显利空信号</div>');
+}
+
+// ── [E] Risk Matrix ────────────────────────────
+function renderRiskMatrix() {
+  const rm = DATA.riskMatrix;
+  const names = { physical: '🥇 实物黄金', etf: '📈 黄金ETF (GLD)', futures: '📊 黄金期货', miners: '⛏️ 金矿股 (GDX)' };
+  const riskBadge = r => `<span class="risk-badge risk-${r}">${r === 'low' ? '🟢 低' : r === 'medium' ? '🟡 中' : '🔴 高'}</span>`;
+  const tags = (arr, cls) => arr.map(t => `<span class="tag ${cls}">${t}</span>`).join(' ');
+
+  const tbody = document.querySelector('#riskTable tbody');
+  tbody.innerHTML = Object.entries(rm).map(([key, v]) => `
+    <tr>
+      <td style="font-weight:600;white-space:nowrap">${names[key]}</td>
+      <td>${riskBadge(v.risk)}</td>
+      <td>${v.keyFactors.join(' · ')}</td>
+      <td>${tags(v.riskSignals, 'tag-risk')}</td>
+      <td>${tags(v.oppSignals, 'tag-opp')}</td>
+      <td style="font-weight:600">${v.position}</td>
+    </tr>
+  `).join('');
+}
+
+// ── [F] Outlook ────────────────────────────────
+function renderOutlook() {
+  const o = DATA.outlook;
+  const periods = [
+    { key: 'shortTerm', title: '📅 短期 (1-4周)', data: o.shortTerm },
+    { key: 'midTerm', title: '📆 中期 (1-6月)', data: o.midTerm },
+    { key: 'longTerm', title: '🗓️ 长期 (1年+)', data: o.longTerm },
+  ];
+
+  const dirIcon = d => d === 'bullish' ? '↑' : d === 'bearish' ? '↓' : '→';
+  const dirColor = d => d === 'bullish' ? 'var(--green)' : d === 'bearish' ? 'var(--red)' : 'var(--yellow)';
+  const dirLabel = d => d === 'bullish' ? '看多' : d === 'bearish' ? '看空' : '中性';
+
+  const el = document.getElementById('outlookGrid');
+  el.innerHTML = periods.map(p => `
+    <div class="outlook-card">
+      <h4>${p.title}</h4>
+      <div class="outlook-dir" style="color:${dirColor(p.data.direction)}">${dirIcon(p.data.direction)} ${dirLabel(p.data.direction)}</div>
+      <div class="outlook-conf">置信度：${p.data.confidence}</div>
+      <ul class="outlook-factors">${p.data.factors.map(f => `<li>${f}</li>`).join('')}</ul>
+      ${p.data.support ? `<div style="font-size:0.78rem;color:var(--text2);margin-top:6px">支撑: $${p.data.support.join(' / $')} | 阻力: $${p.data.resistance.join(' / $')}</div>` : ''}
+      <div class="outlook-summary">${p.data.summary}</div>
+    </div>
+  `).join('');
+}
+
+// ── [G] Technicals ─────────────────────────────
+function renderTechnicals() {
+  const t = DATA.technicals;
+  const gold = DATA.prices.gold.value;
+  const posLabel = (price, ma) => price > ma ? '(上方 ✓)' : '(下方 ✗)';
+  const posClass = (price, ma) => price > ma ? 'up' : 'down';
+  const rsiLabel = r => r > 70 ? '超买' : r < 30 ? '超卖' : '中性';
+  const rsiClass = r => r > 70 ? 'down' : r < 30 ? 'up' : 'neutral-c';
+  const crossLabel = c => c === 'golden' ? '金叉 ✓' : c === 'death' ? '死叉 ✗' : '无信号';
+  const crossClass = c => c === 'golden' ? 'up' : c === 'death' ? 'down' : 'neutral-c';
+  const volClass = l => l === 'low' ? 'up' : l === 'high' ? 'down' : 'neutral-c';
+  const volLabel = l => l === 'low' ? '低' : l === 'high' ? '高' : '中';
+
+  const items = [
+    { label: '当前价格', value: `$${fmt(gold, 0)}`, note: '', cls: 'card-gold' },
+    { label: '50日均线', value: t.ma50 ? `$${fmt(t.ma50, 0)}` : 'N/A', note: t.ma50 ? posLabel(gold, t.ma50) : '', cls: t.ma50 ? posClass(gold, t.ma50) : '' },
+    { label: '200日均线', value: t.ma200 ? `$${fmt(t.ma200, 0)}` : 'N/A', note: t.ma200 ? posLabel(gold, t.ma200) : '', cls: t.ma200 ? posClass(gold, t.ma200) : '' },
+    { label: 'RSI(14)', value: t.rsi14 !== null ? t.rsi14.toFixed(1) : 'N/A', note: t.rsi14 !== null ? rsiLabel(t.rsi14) : '', cls: t.rsi14 !== null ? rsiClass(t.rsi14) : '' },
+    { label: '20日波动率', value: DATA.volatility.current20d !== null ? DATA.volatility.current20d.toFixed(1) + '%' : 'N/A', note: volLabel(DATA.volatility.level), cls: volClass(DATA.volatility.level) },
+    { label: '支撑位', value: t.support.map(s => '$' + fmt(s, 0)).join(' / '), note: '', cls: '' },
+    { label: '阻力位', value: t.resistance.map(s => '$' + fmt(s, 0)).join(' / '), note: '', cls: '' },
+    { label: 'MA 交叉', value: crossLabel(t.maCrossover), note: '', cls: crossClass(t.maCrossover) },
+  ];
+
+  document.getElementById('techGrid').innerHTML = items.map(it => `
+    <div class="tech-item">
+      <div class="t-label">${it.label}</div>
+      <div class="t-value ${it.cls}">${it.value}</div>
+      <div class="t-note ${it.cls}">${it.note}</div>
+    </div>
+  `).join('');
+}
+
+// ── 工具函数 ────────────────────────────────────
+function fmt(n, decimals = 2) {
+  if (n == null) return 'N/A';
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+// ── 启动 ──────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
