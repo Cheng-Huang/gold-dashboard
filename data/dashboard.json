@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-02-26T08:31:15.270741Z",
+  "lastUpdated": "2026-02-26T22:32:08.123673Z",
   "prices": {
     "gold": {
-      "value": 5202.39990234375,
-      "change1d": -4.0,
-      "changePct1d": -0.08
+      "value": 5201.5,
+      "change1d": -4.9,
+      "changePct1d": -0.09
     },
     "dxy": {
       "value": 117.9917,
@@ -13,8 +13,8 @@
   },
   "coreFactors": {
     "realYield": {
-      "current": 1.78,
-      "ma20": 1.8515,
+      "current": 1.77,
+      "ma20": 1.845,
       "ma60": 1.882,
       "trend": "declining"
     },
@@ -29,11 +29,11 @@
       "corePceYoY": 3.0
     },
     "fedBalance": {
-      "current": 6613395.0,
-      "weekOverWeekPct": -0.1357
+      "current": 6613797.0,
+      "weekOverWeekPct": 0.0061
     },
     "vix": {
-      "current": 19.55
+      "current": 17.93
     },
     "fedFunds": {
       "current": 3.64
@@ -49,7 +49,12 @@
       {
         "title": "实际利率下行趋势",
         "strength": 4,
-        "detail": "20日均线(1.85) < 60日均线(1.88)"
+        "detail": "20日均线(1.84) < 60日均线(1.88)"
+      },
+      {
+        "title": "美联储扩表（流动性宽松）",
+        "strength": 3,
+        "detail": "美联储总资产周环比: +0.01%"
       },
       {
         "title": "金价站上200日均线",
@@ -60,34 +65,33 @@
         "title": "COT投机净多头低位（<20百分位）",
         "strength": 3,
         "detail": "净多头:159915 百分位:4%，空头极端有反弹机会"
+      },
+      {
+        "title": "GLD ETF资金大幅流入",
+        "strength": 2,
+        "detail": "5日成交额变化: +15.6%，机构加仓"
       }
     ],
-    "bearish": [
-      {
-        "title": "美联储缩表（QT 加速）",
-        "strength": 3,
-        "detail": "美联储总资产周环比: -0.14%"
-      }
-    ]
+    "bearish": []
   },
   "overallSignal": {
     "direction": "bullish",
     "label": "看多",
-    "bullScore": 15,
-    "bearScore": 3
+    "bullScore": 20,
+    "bearScore": 0
   },
   "sentiment": {
-    "score": 56.9,
-    "label": "中性",
+    "score": 61.3,
+    "label": "贪婪",
     "components": {
       "vix": {
-        "value": 19.55,
-        "score": 68.2
+        "value": 17.93,
+        "score": 73.6
       },
       "realYield": {
         "trend": "declining",
-        "diff": -0.03,
-        "score": 55.1
+        "diff": -0.037,
+        "score": 56.2
       },
       "dxy": {
         "roc20d": -1.01,
@@ -103,9 +107,9 @@
         "date": "2026-02-17"
       },
       "etfFlow": {
-        "score": 66.6,
+        "score": 88.9,
         "totalAssetsBln": 174.07,
-        "flow5dPct": 6.65
+        "flow5dPct": 15.58
       }
     }
   },
@@ -124,15 +128,15 @@
     },
     {
       "axis": "流动性",
-      "value": 1.6
+      "value": 5.2
     },
     {
       "axis": "避险需求",
-      "value": 3.2
+      "value": 2.6
     },
     {
       "axis": "资金流入",
-      "value": 2.9
+      "value": 3.8
     }
   ],
   "volatility": {
@@ -247,7 +251,7 @@
     }
   },
   "technicals": {
-    "ma50": 4744.8,
+    "ma50": 4744.78,
     "ma200": 3922.9,
     "rsi14": 65.0,
     "support": [
@@ -1720,14 +1724,10 @@
       },
       {
         "date": "2026-02-26",
-        "value": 5202.39990234375
+        "value": 5201.5
       }
     ],
     "realYield": [
-      {
-        "date": "2024-09-05",
-        "value": 1.7
-      },
       {
         "date": "2024-09-06",
         "value": 1.69
@@ -3183,6 +3183,10 @@
       {
         "date": "2026-02-24",
         "value": 1.78
+      },
+      {
+        "date": "2026-02-25",
+        "value": 1.77
       }
     ],
     "dxy": [
@@ -4649,10 +4653,6 @@
     ],
     "breakeven": [
       {
-        "date": "2024-09-06",
-        "value": 2.03
-      },
-      {
         "date": "2024-09-09",
         "value": 2.04
       },
@@ -6107,6 +6107,10 @@
       {
         "date": "2026-02-25",
         "value": 2.28
+      },
+      {
+        "date": "2026-02-26",
+        "value": 2.28
       }
     ],
     "fedAssets": [
@@ -6733,13 +6737,13 @@
       {
         "date": "2026-02-18",
         "value": 6613395.0
+      },
+      {
+        "date": "2026-02-25",
+        "value": 6613797.0
       }
     ],
     "vix": [
-      {
-        "date": "2024-09-25",
-        "value": 15.41
-      },
       {
         "date": "2024-09-26",
         "value": 15.37
@@ -8195,6 +8199,10 @@
       {
         "date": "2026-02-24",
         "value": 19.55
+      },
+      {
+        "date": "2026-02-25",
+        "value": 17.93
       }
     ]
   },
@@ -8218,8 +8226,8 @@
   },
   "gld": {
     "totalAssetsBln": 174.07,
-    "flow5dPct": 6.65,
-    "navPrice": 470.55264,
-    "volume": 12874602
+    "flow5dPct": 15.58,
+    "navPrice": 477.10156,
+    "volume": 10299115
   }
 }
