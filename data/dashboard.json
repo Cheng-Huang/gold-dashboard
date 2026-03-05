@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-03-04T22:29:08.324507Z",
+  "lastUpdated": "2026-03-05T22:29:19.224765Z",
   "prices": {
     "gold": {
-      "value": 5151.60009765625,
-      "change1d": 44.2,
-      "changePct1d": 0.87
+      "value": 5093.2998046875,
+      "change1d": -26.9,
+      "changePct1d": -0.53
     },
     "dxy": {
       "value": 117.8223,
@@ -13,9 +13,9 @@
   },
   "coreFactors": {
     "realYield": {
-      "current": 1.77,
-      "ma20": 1.813,
-      "ma60": 1.8767,
+      "current": 1.8,
+      "ma20": 1.807,
+      "ma60": 1.8758,
       "trend": "declining"
     },
     "dollarIndex": {
@@ -24,16 +24,16 @@
       "trend": "rising"
     },
     "inflation": {
-      "breakeven": 2.29,
+      "breakeven": 2.31,
       "coreCpiYoY": 2.95,
       "corePceYoY": 3.0
     },
     "fedBalance": {
-      "current": 6613797.0,
-      "weekOverWeekPct": 0.0061
+      "current": 6628894.0,
+      "weekOverWeekPct": 0.2283
     },
     "vix": {
-      "current": 23.57
+      "current": 21.15
     },
     "fedFunds": {
       "current": 3.64
@@ -44,7 +44,7 @@
       {
         "title": "50/200日均线金叉",
         "strength": 5,
-        "detail": "MA50($4814) > MA200($3963)"
+        "detail": "MA50($4828) > MA200($3972)"
       },
       {
         "title": "实际利率下行趋势",
@@ -54,12 +54,12 @@
       {
         "title": "美联储扩表（流动性宽松）",
         "strength": 3,
-        "detail": "美联储总资产周环比: +0.01%"
+        "detail": "美联储总资产周环比: +0.23%"
       },
       {
         "title": "金价站上200日均线",
         "strength": 3,
-        "detail": "金价 $5152 > MA200 $3963"
+        "detail": "金价 $5093 > MA200 $3972"
       },
       {
         "title": "COT投机净多头低位（<20百分位）",
@@ -69,7 +69,7 @@
       {
         "title": "GLD ETF资金大幅流入",
         "strength": 2,
-        "detail": "5日成交额变化: +22.5%，机构加仓"
+        "detail": "5日成交额变化: +13.9%，机构加仓"
       }
     ],
     "bearish": []
@@ -81,17 +81,17 @@
     "bearScore": 0
   },
   "sentiment": {
-    "score": 56.8,
+    "score": 55.9,
     "label": "中性",
     "components": {
       "vix": {
-        "value": 23.57,
-        "score": 54.8
+        "value": 21.15,
+        "score": 62.8
       },
       "realYield": {
         "trend": "declining",
-        "diff": -0.064,
-        "score": 60.6
+        "diff": -0.069,
+        "score": 61.5
       },
       "dxy": {
         "roc20d": 0.33,
@@ -107,9 +107,9 @@
         "date": "2026-02-24"
       },
       "etfFlow": {
-        "score": 100,
-        "totalAssetsBln": 174.07,
-        "flow5dPct": 22.51
+        "score": 84.8,
+        "totalAssetsBln": 184.86,
+        "flow5dPct": 13.92
       }
     }
   },
@@ -124,23 +124,23 @@
     },
     {
       "axis": "通胀预期",
-      "value": 4.0
+      "value": 4.1
     },
     {
       "axis": "流动性",
-      "value": 5.2
+      "value": 10
     },
     {
       "axis": "避险需求",
-      "value": 4.5
+      "value": 3.7
     },
     {
       "axis": "资金流入",
-      "value": 4.2
+      "value": 3.6
     }
   ],
   "volatility": {
-    "current20d": 28.52,
+    "current20d": 28.55,
     "level": "high"
   },
   "riskMatrix": {
@@ -216,15 +216,15 @@
       "confidence": "高",
       "factors": [
         "MA交叉: 金叉",
-        "RSI(14): 53.3",
+        "RSI(14): 58.0",
         "金价>200日均线"
       ],
       "support": [
-        4304.0,
-        4420.0
+        4306.0,
+        4443.0
       ],
       "resistance": [
-        5029.0,
+        5053.0,
         5179.0
       ],
       "summary": "技术面偏多，短期有上行动能"
@@ -249,25 +249,21 @@
     }
   },
   "technicals": {
-    "ma50": 4813.99,
-    "ma200": 3962.57,
-    "rsi14": 53.3,
+    "ma50": 4828.0,
+    "ma200": 3971.73,
+    "rsi14": 58.0,
     "support": [
-      4304.0,
-      4420.0
+      4306.0,
+      4443.0
     ],
     "resistance": [
-      5029.0,
+      5053.0,
       5179.0
     ],
     "maCrossover": "golden"
   },
   "history": {
     "gold": [
-      {
-        "date": "2024-09-20",
-        "value": 2619.89990234375
-      },
       {
         "date": "2024-09-23",
         "value": 2626.5
@@ -1722,14 +1718,14 @@
       },
       {
         "date": "2026-03-04",
-        "value": 5151.60009765625
+        "value": 5120.2001953125
+      },
+      {
+        "date": "2026-03-05",
+        "value": 5093.2998046875
       }
     ],
     "realYield": [
-      {
-        "date": "2024-09-12",
-        "value": 1.63
-      },
       {
         "date": "2024-09-13",
         "value": 1.58
@@ -3185,6 +3181,10 @@
       {
         "date": "2026-03-03",
         "value": 1.77
+      },
+      {
+        "date": "2026-03-04",
+        "value": 1.8
       }
     ],
     "dxy": [
@@ -4651,10 +4651,6 @@
     ],
     "breakeven": [
       {
-        "date": "2024-09-13",
-        "value": 2.08
-      },
-      {
         "date": "2024-09-16",
         "value": 2.09
       },
@@ -6109,6 +6105,10 @@
       {
         "date": "2026-03-04",
         "value": 2.29
+      },
+      {
+        "date": "2026-03-05",
+        "value": 2.31
       }
     ],
     "fedAssets": [
@@ -6735,13 +6735,13 @@
       {
         "date": "2026-02-25",
         "value": 6613797.0
+      },
+      {
+        "date": "2026-03-04",
+        "value": 6628894.0
       }
     ],
     "vix": [
-      {
-        "date": "2024-10-02",
-        "value": 18.9
-      },
       {
         "date": "2024-10-03",
         "value": 20.49
@@ -8197,6 +8197,10 @@
       {
         "date": "2026-03-03",
         "value": 23.57
+      },
+      {
+        "date": "2026-03-04",
+        "value": 21.15
       }
     ]
   },
@@ -8219,9 +8223,9 @@
     "specNetLongPercentile": 3.5
   },
   "gld": {
-    "totalAssetsBln": 174.07,
-    "flow5dPct": 22.51,
-    "navPrice": 462.55545,
-    "volume": 9767135
+    "totalAssetsBln": 184.86,
+    "flow5dPct": 13.92,
+    "navPrice": 473.11227,
+    "volume": 11584515
   }
 }
