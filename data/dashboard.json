@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-03-05T22:29:19.224765Z",
+  "lastUpdated": "2026-03-06T22:26:48.603578Z",
   "prices": {
     "gold": {
-      "value": 5093.2998046875,
-      "change1d": -26.9,
-      "changePct1d": -0.53
+      "value": 5181.2998046875,
+      "change1d": 116.0,
+      "changePct1d": 2.29
     },
     "dxy": {
       "value": 117.8223,
@@ -13,9 +13,9 @@
   },
   "coreFactors": {
     "realYield": {
-      "current": 1.8,
-      "ma20": 1.807,
-      "ma60": 1.8758,
+      "current": 1.82,
+      "ma20": 1.801,
+      "ma60": 1.8748,
       "trend": "declining"
     },
     "dollarIndex": {
@@ -33,7 +33,7 @@
       "weekOverWeekPct": 0.2283
     },
     "vix": {
-      "current": 21.15
+      "current": 23.75
     },
     "fedFunds": {
       "current": 3.64
@@ -44,12 +44,12 @@
       {
         "title": "50/200日均线金叉",
         "strength": 5,
-        "detail": "MA50($4828) > MA200($3972)"
+        "detail": "MA50($4842) > MA200($3981)"
       },
       {
         "title": "实际利率下行趋势",
         "strength": 4,
-        "detail": "20日均线(1.81) < 60日均线(1.88)"
+        "detail": "20日均线(1.80) < 60日均线(1.87)"
       },
       {
         "title": "美联储扩表（流动性宽松）",
@@ -59,17 +59,12 @@
       {
         "title": "金价站上200日均线",
         "strength": 3,
-        "detail": "金价 $5093 > MA200 $3972"
+        "detail": "金价 $5181 > MA200 $3981"
       },
       {
         "title": "COT投机净多头低位（<20百分位）",
         "strength": 3,
-        "detail": "净多头:159177 百分位:4%，空头极端有反弹机会"
-      },
-      {
-        "title": "GLD ETF资金大幅流入",
-        "strength": 2,
-        "detail": "5日成交额变化: +13.9%，机构加仓"
+        "detail": "净多头:160145 百分位:6%，空头极端有反弹机会"
       }
     ],
     "bearish": []
@@ -77,21 +72,21 @@
   "overallSignal": {
     "direction": "bullish",
     "label": "看多",
-    "bullScore": 20,
+    "bullScore": 18,
     "bearScore": 0
   },
   "sentiment": {
-    "score": 55.9,
+    "score": 50.0,
     "label": "中性",
     "components": {
       "vix": {
-        "value": 21.15,
-        "score": 62.8
+        "value": 23.75,
+        "score": 54.2
       },
       "realYield": {
         "trend": "declining",
-        "diff": -0.069,
-        "score": 61.5
+        "diff": -0.074,
+        "score": 62.3
       },
       "dxy": {
         "roc20d": 0.33,
@@ -101,22 +96,22 @@
         "score": 90
       },
       "cot": {
-        "score": 3.5,
-        "specNetLong": 159177,
-        "percentile": 3.5,
-        "date": "2026-02-24"
+        "score": 6.1,
+        "specNetLong": 160145,
+        "percentile": 6.1,
+        "date": "2026-03-03"
       },
       "etfFlow": {
-        "score": 84.8,
+        "score": 49.9,
         "totalAssetsBln": 184.86,
-        "flow5dPct": 13.92
+        "flow5dPct": -0.06
       }
     }
   },
   "radar": [
     {
       "axis": "实际利率",
-      "value": 1.8
+      "value": 1.7
     },
     {
       "axis": "美元强弱",
@@ -132,15 +127,15 @@
     },
     {
       "axis": "避险需求",
-      "value": 3.7
+      "value": 4.6
     },
     {
       "axis": "资金流入",
-      "value": 3.6
+      "value": 2.4
     }
   ],
   "volatility": {
-    "current20d": 28.55,
+    "current20d": 29.23,
     "level": "high"
   },
   "riskMatrix": {
@@ -216,16 +211,16 @@
       "confidence": "高",
       "factors": [
         "MA交叉: 金叉",
-        "RSI(14): 58.0",
+        "RSI(14): 57.2",
         "金价>200日均线"
       ],
       "support": [
-        4306.0,
-        4443.0
+        4314.0,
+        4448.0
       ],
       "resistance": [
-        5053.0,
-        5179.0
+        5061.0,
+        5184.0
       ],
       "summary": "技术面偏多，短期有上行动能"
     },
@@ -249,25 +244,21 @@
     }
   },
   "technicals": {
-    "ma50": 4828.0,
-    "ma200": 3971.73,
-    "rsi14": 58.0,
+    "ma50": 4842.18,
+    "ma200": 3981.1,
+    "rsi14": 57.2,
     "support": [
-      4306.0,
-      4443.0
+      4314.0,
+      4448.0
     ],
     "resistance": [
-      5053.0,
-      5179.0
+      5061.0,
+      5184.0
     ],
     "maCrossover": "golden"
   },
   "history": {
     "gold": [
-      {
-        "date": "2024-09-23",
-        "value": 2626.5
-      },
       {
         "date": "2024-09-24",
         "value": 2651.199951171875
@@ -1722,14 +1713,14 @@
       },
       {
         "date": "2026-03-05",
-        "value": 5093.2998046875
+        "value": 5065.2998046875
+      },
+      {
+        "date": "2026-03-06",
+        "value": 5181.2998046875
       }
     ],
     "realYield": [
-      {
-        "date": "2024-09-13",
-        "value": 1.58
-      },
       {
         "date": "2024-09-16",
         "value": 1.54
@@ -3185,6 +3176,10 @@
       {
         "date": "2026-03-04",
         "value": 1.8
+      },
+      {
+        "date": "2026-03-05",
+        "value": 1.82
       }
     ],
     "dxy": [
@@ -6743,10 +6738,6 @@
     ],
     "vix": [
       {
-        "date": "2024-10-03",
-        "value": 20.49
-      },
-      {
         "date": "2024-10-04",
         "value": 19.21
       },
@@ -8201,31 +8192,35 @@
       {
         "date": "2026-03-04",
         "value": 21.15
+      },
+      {
+        "date": "2026-03-05",
+        "value": 23.75
       }
     ]
   },
   "cot": {
     "current": {
-      "date": "2026-02-24",
-      "openInterest": 420182,
-      "nonCommLong": 211649,
-      "nonCommShort": 52472,
-      "nonCommSpreads": 54563,
-      "commLong": 86198,
-      "commShort": 287004,
-      "specNetLong": 159177,
-      "specNetLongPct": 37.88,
-      "chgOpenInterest": 13104,
-      "chgNonCommLong": -1783,
-      "chgNonCommShort": -1045
+      "date": "2026-03-03",
+      "openInterest": 409789,
+      "nonCommLong": 213752,
+      "nonCommShort": 53607,
+      "nonCommSpreads": 56077,
+      "commLong": 84834,
+      "commShort": 285417,
+      "specNetLong": 160145,
+      "specNetLongPct": 39.08,
+      "chgOpenInterest": -10393,
+      "chgNonCommLong": 2103,
+      "chgNonCommShort": 1135
     },
-    "historyCount": 113,
-    "specNetLongPercentile": 3.5
+    "historyCount": 114,
+    "specNetLongPercentile": 6.1
   },
   "gld": {
     "totalAssetsBln": 184.86,
-    "flow5dPct": 13.92,
-    "navPrice": 473.11227,
-    "volume": 11584515
+    "flow5dPct": -0.06,
+    "navPrice": 469.01654,
+    "volume": 10063601
   }
 }
