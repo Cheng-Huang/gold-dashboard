@@ -75,6 +75,20 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .card { cursor: pointer; }
+  .card-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    font-size: 0.78rem;
+    color: var(--text2);
+    margin-top: 0;
+    line-height: 1.5;
+  }
+  .card.expanded .card-detail {
+    max-height: 200px;
+    margin-top: 10px;
+  }
   .card .label { font-size: 0.8rem; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
   .card .value { font-size: 1.65rem; font-weight: 700; }
   .card .sub { font-size: 0.8rem; margin-top: 4px; }
@@ -375,11 +389,15 @@ let currentChartTab = 0;
 let currentTimeRange = 365; // days
 
 const CHART_CONFIGS = [
+  { label: '金价 + 均线', keys: ['gold', 'goldMA50', 'goldMA200'], colors: ['#f0c040', '#22c55e', '#ef4444'], invertLeft: false, singleAxis: true },
   { label: '实际利率 vs 金价', keys: ['realYield', 'gold'], colors: ['#3b82f6', '#f0c040'], invertLeft: true },
   { label: '美元指数 vs 金价', keys: ['dxy', 'gold'], colors: ['#a78bfa', '#f0c040'], invertLeft: false },
   { label: '通胀预期 (Breakeven)', keys: ['breakeven'], colors: ['#f97316'], invertLeft: false },
   { label: '美联储资产 vs 金价', keys: ['fedAssets', 'gold'], colors: ['#14b8a6', '#f0c040'], invertLeft: false },
   { label: 'VIX 恐慌指数', keys: ['vix'], colors: ['#ef4444'], invertLeft: false },
+  { label: '金银比', keys: ['silverGoldRatio'], colors: ['#a78bfa'], invertLeft: false },
+  { label: 'GDX vs 金价', keys: ['gdx', 'gold'], colors: ['#14b8a6', '#f0c040'], invertLeft: false },
+  { label: '收益率曲线 (10Y-2Y)', keys: ['yieldCurve'], colors: ['#f97316'], invertLeft: false },
 ];
 
 const TIME_RANGES = [
@@ -387,7 +405,7 @@ const TIME_RANGES = [
   { label: '1Y', days: 365 }, { label: '3Y', days: 1095 },
 ];
 
-const KEY_LABELS = { realYield: '10Y实际利率(%)', gold: '黄金价格($)', dxy: '美元指数', breakeven: '通胀预期(%)', fedAssets: '美联储总资产(百万$)', vix: 'VIX' };
+const KEY_LABELS = { realYield: '10Y实际利率(%)', gold: '黄金价格($)', goldMA50: 'MA50', goldMA200: 'MA200', dxy: '美元指数', breakeven: '通胀预期(%)', fedAssets: '美联储总资产(百万$)', vix: 'VIX', fwdInflation: '5Y5Y远期通胀(%)', silverGoldRatio: '金银比', gdx: 'GDX金矿ETF($)', yieldCurve: '10Y-2Y利差(%)' };
 
 // ── 数据加载 ─────────────────────────────────────
 async function loadData() {
@@ -430,6 +448,8 @@ function renderSummaryCards() {
   const sent = DATA.sentiment;
   const vol = DATA.volatility;
   const sig = DATA.overallSignal;
+  const sgr = DATA.silverGoldRatio || {};
+  const gdx = DATA.gdx || {};
 
   const pctClass = v => v >= 0 ? 'up' : 'down';
   const arrow = v => v >= 0 ? '↑' : '↓';
@@ -443,14 +463,30 @@ function renderSummaryCards() {
   const sigIcon = d => d === 'bullish' ? '🟢' : d === 'bearish' ? '🔴' : '🟡';
   const sigClass = d => d === 'bullish' ? 'bullish' : d === 'bearish' ? 'bearish' : 'neutral';
 
+  const sgrSignalLabel = s => s === 'extreme_high' ? '极端偏高 ⚠️' : s === 'extreme_low' ? '偏低 ✓' : '正常';
+  const sgrSignalClass = s => s === 'extreme_high' ? 'down' : s === 'extreme_low' ? 'up' : 'neutral-c';
+
   const cards = [
-    { cls: 'card-gold', label: '黄金价格', value: `$${fmt(p.gold.value, 0)}`, sub: `<span class="${pctClass(p.gold.changePct1d)}">${arrow(p.gold.changePct1d)} ${p.gold.changePct1d > 0 ? '+' : ''}${p.gold.changePct1d.toFixed(2)}%</span>` },
-    { label: '10Y 实际利率', value: `${ry.current.toFixed(2)}%`, sub: `<span class="${invClass(ry.trend)}">${trendArrow(ry.trend)} ${ry.trend === 'declining' ? '下行' : '上行'}</span>` },
-    { label: '美元指数', value: `${dx.current.toFixed(1)}`, sub: `<span class="${invClass(dx.trend)}">${trendArrow(dx.trend)} 20日ROC: ${dx.roc20d !== null ? dx.roc20d.toFixed(1)+'%' : 'N/A'}</span>` },
-    { label: '市场情绪', value: `<span style="color:${sentColor(sent.score)}">${sent.score}</span>`, sub: `<span style="color:${sentColor(sent.score)}">${sent.label}</span>` },
-    { label: '波动率 (20日)', value: `<span style="color:${volColor(vol.level)}">${vol.current20d !== null ? vol.current20d.toFixed(1) + '%' : 'N/A'}</span>`, sub: `<span style="color:${volColor(vol.level)}">${volLabel(vol.level)}</span>` },
-    { label: '综合信号', value: `<div class="signal-badge ${sigClass(sig.direction)}">${sigIcon(sig.direction)} ${sig.label}</div>`, sub: `多:${sig.bullScore} / 空:${sig.bearScore}` },
+    { cls: 'card-gold', label: '黄金价格', value: `$${fmt(p.gold.value, 0)}`, sub: `<span class="${pctClass(p.gold.changePct1d)}">${arrow(p.gold.changePct1d)} ${p.gold.changePct1d > 0 ? '+' : ''}${p.gold.changePct1d.toFixed(2)}%</span>`, detail: `黄金期货(GC=F)收盘价。日涨幅反映短期市场情绪。当日变动: ${p.gold.changePct1d > 0 ? '+' : ''}$${(p.gold.value * p.gold.changePct1d / 100).toFixed(0)}` },
+    { label: '10Y 实际利率', value: `${ry.current.toFixed(2)}%`, sub: `<span class="${invClass(ry.trend)}">${trendArrow(ry.trend)} ${ry.trend === 'declining' ? '下行' : '上行'}</span>`, detail: '10年期TIPS实际利率。下行趋势利好黄金（降低持有黄金的机会成本）。' },
+    { label: '美元指数', value: `${dx.current.toFixed(1)}`, sub: `<span class="${invClass(dx.trend)}">${trendArrow(dx.trend)} 20日ROC: ${dx.roc20d !== null ? dx.roc20d.toFixed(1)+'%' : 'N/A'}</span>`, detail: '贸易加权美元指数。美元走弱时，以美元计价的黄金对海外买家更便宜。' },
+    { label: '市场情绪', value: `<span style="color:${sentColor(sent.score)}">${sent.score}</span>`, sub: `<span style="color:${sentColor(sent.score)}">${sent.label}</span>`, detail: '综合情绪指数 (0-100)，融合VIX、实际利率趋势、美元动量、技术面、COT持仓和ETF资金流。极度恐惧往往是买入机会，极度贪婪需警惕。' },
+    { label: '波动率 (20日)', value: `<span style="color:${volColor(vol.level)}">${vol.current20d !== null ? vol.current20d.toFixed(1) + '%' : 'N/A'}</span>`, sub: `<span style="color:${volColor(vol.level)}">${volLabel(vol.level)}</span>`, detail: '20日年化波动率。<10%=低波动(平静)，>20%=高波动(剧烈波动，期货风险加大)。' },
+    { label: '综合信号', value: `<div class="signal-badge ${sigClass(sig.direction)}">${sigIcon(sig.direction)} ${sig.label}</div>`, sub: `多:${sig.bullScore} / 空:${sig.bearScore}`, detail: `多空信号强度加权合计。多头总分${sig.bullScore}，空头总分${sig.bearScore}，差值>'5看多，<-5看空。` },
   ];
+
+  // 金银比卡片
+  if (sgr.current != null) {
+    cards.push({ label: '金银比', value: `${sgr.current.toFixed(1)}`, sub: `<span class="${sgrSignalClass(sgr.signal)}">${sgrSignalLabel(sgr.signal)}</span>`, detail: `金价/银价比率。>80表示黄金相对白银极端偏贵，有均值回归风险; <60表示黄金相对便宜。白银价: $${sgr.silver_price ? sgr.silver_price.toFixed(2) : 'N/A'}` });
+  }
+
+  // GDX 卡片
+  if (gdx.current != null) {
+    const gdxPctClass = gdx.changePct1d != null ? pctClass(gdx.changePct1d) : 'neutral-c';
+    const gdxArrow = gdx.changePct1d != null ? arrow(gdx.changePct1d) : '→';
+    const gdxPctStr = gdx.changePct1d != null ? `${gdx.changePct1d > 0 ? '+' : ''}${gdx.changePct1d.toFixed(2)}%` : 'N/A';
+    cards.push({ label: 'GDX 金矿ETF', value: `$${fmt(gdx.current, 2)}`, sub: `<span class="${gdxPctClass}">${gdxArrow} ${gdxPctStr}</span>`, detail: `VanEck金矿股ETF。金价/GDX比: ${gdx.goldGdxRatio || 'N/A'}，20日动量: ${gdx.roc20d != null ? gdx.roc20d.toFixed(1)+'%' : 'N/A'}。金矿股是金价的杠杆投资。` });
+  }
 
   const el = document.getElementById('summaryCards');
   el.innerHTML = cards.map(c => `
@@ -458,8 +494,13 @@ function renderSummaryCards() {
       <div class="label">${c.label}</div>
       <div class="value">${c.value}</div>
       <div class="sub">${c.sub}</div>
+      <div class="card-detail">${c.detail || ''}</div>
     </div>
   `).join('');
+
+  el.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('expanded'));
+  });
 }
 
 // ── [B] Chart Tabs ────────────────────────────
@@ -517,11 +558,12 @@ function renderMainChart() {
       data: sortedDates.map(d => map[d] ?? null),
       borderColor: cfg.colors[i],
       backgroundColor: cfg.colors[i] + '20',
-      borderWidth: 2,
+      borderWidth: i === 0 ? 2 : (cfg.singleAxis ? 1.5 : 2),
       pointRadius: 0,
       tension: 0.3,
       fill: cfg.keys.length === 1,
-      yAxisID: i === 0 ? 'y' : (cfg.keys.length > 1 ? 'y1' : 'y'),
+      yAxisID: cfg.singleAxis ? 'y' : (i === 0 ? 'y' : (cfg.keys.length > 1 ? 'y1' : 'y')),
+      borderDash: (cfg.singleAxis && i > 0) ? [6, 3] : [],
       spanGaps: true,
     });
   });
@@ -554,7 +596,7 @@ function renderMainChart() {
     },
   };
 
-  if (cfg.keys.length > 1) {
+  if (cfg.keys.length > 1 && !cfg.singleAxis) {
     options.scales.y1 = {
       position: 'right',
       ticks: { color: cfg.colors[1], font: { size: 10 } },
@@ -707,7 +749,16 @@ function renderTechnicals() {
     { label: '支撑位', value: t.support.map(s => '$' + fmt(s, 0)).join(' / '), note: '', cls: '' },
     { label: '阻力位', value: t.resistance.map(s => '$' + fmt(s, 0)).join(' / '), note: '', cls: '' },
     { label: 'MA 交叉', value: crossLabel(t.maCrossover), note: '', cls: crossClass(t.maCrossover) },
+    { label: '利率-金价背离', value: DATA.divergence && DATA.divergence.zScore !== null ? DATA.divergence.zScore.toFixed(2) : 'N/A', note: DATA.divergence ? (DATA.divergence.signal === 'overbought' ? '超买⚠️' : DATA.divergence.signal === 'oversold' ? '超卖✓' : '正常') : '', cls: DATA.divergence ? (DATA.divergence.signal === 'overbought' ? 'down' : DATA.divergence.signal === 'oversold' ? 'up' : 'neutral-c') : '' },
   ];
+
+  // 收益率曲线
+  const yc = DATA.yieldCurve;
+  if (yc && yc.current != null) {
+    const ycClass = yc.inverted ? 'down' : 'up';
+    const ycNote = yc.inverted ? '倒挂 ⚠️' : (yc.signal === 'steepening' ? '急陡化' : yc.signal === 'flattening' ? '平坦化' : '正常');
+    items.push({ label: '收益率曲线', value: `${yc.current.toFixed(2)}%`, note: ycNote, cls: ycClass });
+  }
 
   document.getElementById('techGrid').innerHTML = items.map(it => `
     <div class="tech-item">

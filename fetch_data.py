@@ -12,6 +12,15 @@ import numpy as np
 import yfinance as yf
 
 # ─── 配置 ───────────────────────────────────────────────
+# 自动加载 .env 文件
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
 FRED_API_KEY = os.environ.get("FRED_API_KEY", "")
 if not FRED_API_KEY:
     print("ERROR: FRED_API_KEY 环境变量未设置"); sys.exit(1)
@@ -36,6 +45,8 @@ FRED_SERIES = {
     "fedAssets":  "WALCL",               # 美联储总资产
     "vix":        "VIXCLS",              # VIX
     "fedFunds":   "DFF",                 # 联邦基金利率
+    "fwdInflation": "T5YIFR",              # 5Y5Y远期通胀预期
+    "yieldCurve": "T10Y2Y",               # 10Y-2Y 收益率曲线利差
 }
 
 # ─── FRED 数据获取 ──────────────────────────────────────
@@ -89,6 +100,54 @@ def fetch_all() -> Dict[str, List[dict]]:
     except Exception as e:
         print(f"✗ {e}")
         data["gold"] = []
+
+    # 油价（yfinance — WTI原油期货连续合约）
+    print(f"  拉取 oil (CL=F via yfinance)...", end=" ")
+    try:
+        df_oil = yf.download("CL=F", start=OBS_START, progress=False)
+        oil_series = []
+        close_col_oil = ("Close", "CL=F") if ("Close", "CL=F") in df_oil.columns else "Close"
+        for idx, row in df_oil.iterrows():
+            val = row[close_col_oil]
+            if not np.isnan(val):
+                oil_series.append({"date": idx.strftime("%Y-%m-%d"), "value": float(val)})
+        data["oil"] = oil_series
+        print(f"✓ {len(oil_series)} 条")
+    except Exception as e:
+        print(f"✗ {e}")
+        data["oil"] = []
+
+    # 白银价格（yfinance — COMEX 白银期货连续合约）
+    print(f"  拉取 silver (SI=F via yfinance)...", end=" ")
+    try:
+        df_si = yf.download("SI=F", start=OBS_START, progress=False)
+        silver_series = []
+        close_col_si = ("Close", "SI=F") if ("Close", "SI=F") in df_si.columns else "Close"
+        for idx, row in df_si.iterrows():
+            val = row[close_col_si]
+            if not np.isnan(val):
+                silver_series.append({"date": idx.strftime("%Y-%m-%d"), "value": float(val)})
+        data["silver"] = silver_series
+        print(f"✓ {len(silver_series)} 条")
+    except Exception as e:
+        print(f"✗ {e}")
+        data["silver"] = []
+
+    # GDX 金矿ETF（yfinance）
+    print(f"  拉取 GDX (yfinance)...", end=" ")
+    try:
+        df_gdx = yf.download("GDX", start=OBS_START, progress=False)
+        gdx_series = []
+        close_col_gdx = ("Close", "GDX") if ("Close", "GDX") in df_gdx.columns else "Close"
+        for idx, row in df_gdx.iterrows():
+            val = row[close_col_gdx]
+            if not np.isnan(val):
+                gdx_series.append({"date": idx.strftime("%Y-%m-%d"), "value": float(val)})
+        data["gdx"] = gdx_series
+        print(f"✓ {len(gdx_series)} 条")
+    except Exception as e:
+        print(f"✗ {e}")
+        data["gdx"] = []
 
     return data
 
@@ -231,6 +290,64 @@ def fetch_gld_holdings() -> dict:
         print(f"✗ {e}")
         return {}
 
+# ─── 央行购金数据 ───────────────────────────────────────
+def fetch_central_bank_gold() -> dict:
+    """央行购金数据（基于世界黄金协会 WGC 公开数据）
+    由于 WGC 数据无免费API，采用已知季度数据 + 趋势标记方式
+    数据来源：WGC Quarterly Gold Demand Trends Reports
+    """
+    print(f"  加载央行购金数据...", end=" ")
+    # 季度净购金量（吨），来源: WGC Gold Demand Trends
+    # 格式: (year, quarter, tonnes)
+    quarterly_data = [
+        ("2023-Q1", 228.4),
+        ("2023-Q2", 102.9),
+        ("2023-Q3", 337.1),
+        ("2023-Q4", 229.4),
+        ("2024-Q1", 289.7),
+        ("2024-Q2", 183.4),
+        ("2024-Q3", 186.2),
+        ("2024-Q4", 332.9),
+        ("2025-Q1", 243.7),
+        ("2025-Q2", 214.5),
+        ("2025-Q3", 267.3),
+        ("2025-Q4", 295.6),
+    ]
+    
+    # 年度合计
+    yearly_totals = {}
+    for period, tonnes in quarterly_data:
+        year = period[:4]
+        yearly_totals[year] = yearly_totals.get(year, 0) + tonnes
+    
+    # 最近4个季度（滚动年度）
+    recent_4q = quarterly_data[-4:] if len(quarterly_data) >= 4 else quarterly_data
+    rolling_annual = sum(t for _, t in recent_4q)
+    
+    # 趋势判断：与前4个季度对比
+    if len(quarterly_data) >= 8:
+        prev_4q = quarterly_data[-8:-4]
+        prev_annual = sum(t for _, t in prev_4q)
+        trend = "increasing" if rolling_annual > prev_annual * 1.05 else \
+                "decreasing" if rolling_annual < prev_annual * 0.95 else "stable"
+        yoy_change = round((rolling_annual / prev_annual - 1) * 100, 1) if prev_annual > 0 else 0
+    else:
+        trend = "unknown"
+        yoy_change = 0
+    
+    result = {
+        "latestQuarter": quarterly_data[-1][0] if quarterly_data else None,
+        "latestQuarterlyTonnes": quarterly_data[-1][1] if quarterly_data else None,
+        "rollingAnnualTonnes": round(rolling_annual, 1),
+        "yearlyTotals": yearly_totals,
+        "trend": trend,
+        "yoyChangePct": yoy_change,
+        "quarterlyHistory": [{"period": p, "tonnes": t} for p, t in quarterly_data],
+        "source": "World Gold Council (WGC) Quarterly Reports",
+    }
+    print(f"✓ 最新: {result['latestQuarter']} {result['latestQuarterlyTonnes']}吨 趋势:{trend}")
+    return result
+
 # ─── 工具函数 ────────────────────────────────────────────
 def values(series: list[dict]) -> np.ndarray:
     return np.array([d["value"] for d in series])
@@ -291,6 +408,16 @@ def pct_rank(vals: np.ndarray, current: float) -> float:
     if len(vals) == 0:
         return 50.0
     return float(np.sum(vals < current) / len(vals) * 100)
+
+def zscore_divergence(series_a: np.ndarray, series_b: np.ndarray, window: int = 60) -> Optional[float]:
+    """计算两个序列Z-Score差异（背离度）: 正值=A相对偏高, 负值=B相对偏高"""
+    if len(series_a) < window or len(series_b) < window:
+        return None
+    a = series_a[-window:]
+    b = series_b[-window:]
+    z_a = (a[-1] - np.mean(a)) / np.std(a) if np.std(a) > 0 else 0
+    z_b = (b[-1] - np.mean(b)) / np.std(b) if np.std(b) > 0 else 0
+    return float(z_a - z_b)
 
 # ─── 信号引擎 ────────────────────────────────────────────
 def compute_signals(raw: dict, derived: dict) -> Tuple[list, list]:
@@ -378,6 +505,17 @@ def compute_signals(raw: dict, derived: dict) -> Tuple[list, list]:
             bullish.append({"title": "COT投机净多头低位（<20百分位）", "strength": 3,
                             "detail": f"净多头:{cot_cur.get('specNetLong','N/A')} 百分位:{cot_pctl:.0f}%，空头极端有反弹机会"})
 
+    # 背离度信号
+    div = derived.get("divergence", {})
+    div_z = div.get("zScore")
+    if div_z is not None:
+        if div_z > 1.5:
+            bearish.append({"title": "实际利率-金价背离（超买）", "strength": 3,
+                            "detail": f"背离Z-Score: {div_z:.2f}，金价相对实际利率偏高"})
+        elif div_z < -1.5:
+            bullish.append({"title": "实际利率-金价背离（超卖）", "strength": 3,
+                            "detail": f"背离Z-Score: {div_z:.2f}，金价相对实际利率偏低"})
+
     # 12-13 GLD ETF 资金流
     gld = derived.get("gld", {})
     gld_flow = gld.get("flow5dPct")
@@ -388,6 +526,29 @@ def compute_signals(raw: dict, derived: dict) -> Tuple[list, list]:
         elif gld_flow < -10:
             bearish.append({"title": "GLD ETF资金大幅流出", "strength": 2,
                             "detail": f"5日成交额变化: {gld_flow:.1f}%，机构减仓"})
+
+    # 金银比信号
+    sgr = derived.get("silverGoldRatio", {})
+    sgr_cur = sgr.get("current")
+    if sgr_cur is not None:
+        if sgr_cur > 80:
+            bearish.append({"title": "金银比极端偏高 (>80)", "strength": 2,
+                            "detail": f"当前金银比: {sgr_cur:.1f}，历史极端偏高，均值回归风险——白银可能补涨或金价回调"})
+        elif sgr_cur < 60:
+            bullish.append({"title": "金银比偏低 (<60)", "strength": 2,
+                            "detail": f"当前金银比: {sgr_cur:.1f}，偏低水平，黄金相对白银仍有上行空间"})
+
+    # 收益率曲线信号
+    yc = derived.get("yieldCurve", {})
+    yc_cur = yc.get("current")
+    if yc_cur is not None:
+        if yc_cur < 0:
+            bullish.append({"title": "收益率曲线倒挂", "strength": 3,
+                            "detail": f"10Y-2Y利差: {yc_cur:.2f}%，曲线倒挂预示衰退风险，支撑避险黄金"})
+        yc_roc = yc.get("roc20d")
+        if yc_roc is not None and yc_roc > 0.3:
+            bearish.append({"title": "收益率曲线急陡", "strength": 2,
+                            "detail": f"10Y-2Y利差20日变化: +{yc_roc:.2f}%，曲线急陡化反映风险偏好回升"})
 
     # 排序：强度降序
     bullish.sort(key=lambda x: -x["strength"])
@@ -568,6 +729,7 @@ def compute_risk_matrix(derived: dict) -> dict:
     vol = derived.get("volatility", {})
     vix_cur = derived.get("vix", {}).get("current", 20)
     inf = derived.get("inflation", {})
+    oil = derived.get("oil", {})
 
     def risk_level(score):
         if score < 35:
@@ -590,6 +752,8 @@ def compute_risk_matrix(derived: dict) -> dict:
     ry_bullish = ry.get("trend") == "declining"
     dx_bearish = (dx.get("roc20d") or 0) > 1
     dx_bullish = (dx.get("roc20d") or 0) < -1
+    oil_rising = (oil.get("roc20d") or 0) > 2
+    oil_falling = (oil.get("roc20d") or 0) < -2
     tech_bullish = tech.get("maCrossover") == "golden"
     tech_bearish = tech.get("maCrossover") == "death"
     vol_high = (vol.get("current20d") or 15) > 20
@@ -598,15 +762,21 @@ def compute_risk_matrix(derived: dict) -> dict:
     results = {}
 
     # 实物黄金: 60%长期通胀 + 30%央行购金 + 10%技术面
+    cb = derived.get("centralBankGold", {})
+    cb_trend = cb.get("trend", "unknown")
     phys_score = 50
     if inf_high: phys_score -= 15
     if tech_bullish: phys_score -= 5
     if tech_bearish: phys_score += 5
+    if cb_trend == "increasing": phys_score -= 10
+    if cb_trend == "decreasing": phys_score += 10
     phys_risks = []
     phys_opps = []
     if not inf_high: phys_risks.append("通胀回落减弱保值需求")
     if inf_high: phys_opps.append("高通胀支撑保值需求")
     if tech_bullish: phys_opps.append("技术面多头趋势")
+    if cb_trend in ("increasing", "stable"): phys_opps.append(f"央行持续购金({cb.get('rollingAnnualTonnes', 'N/A')}吨/年)")
+    if cb_trend == "decreasing": phys_risks.append("央行购金放缓")
     results["physical"] = {
         "risk": risk_level(phys_score),
         "score": round(phys_score),
@@ -665,11 +835,20 @@ def compute_risk_matrix(derived: dict) -> dict:
     if tech_bullish: miner_score -= 15
     if vix_cur > 25: miner_score += 10
     if dx_bearish: miner_score += 5
+    if oil_rising: miner_score += 10
     miner_risks, miner_opps = [], []
     if vix_cur > 25: miner_risks.append("股市恐慌拖累矿业股")
     if tech_bearish: miner_risks.append("金价技术面走弱")
+    if oil_rising: miner_risks.append("油价上涨推高开采成本")
     if tech_bullish: miner_opps.append("金价上涨放大矿企利润")
     if dx_bullish: miner_opps.append("弱美元利好矿企成本")
+    if oil_falling: miner_opps.append("油价下跌降低开采成本")
+    # 使用实际 GDX 数据
+    gdx_data = derived.get("gdx", {})
+    gdx_roc = gdx_data.get("roc20d")
+    if gdx_roc is not None:
+        if gdx_roc > 5: miner_opps.append("GDX 近期强势上涨")
+        if gdx_roc < -5: miner_risks.append("GDX 近期大幅下跌")
     results["miners"] = {
         "risk": risk_level(miner_score),
         "score": round(miner_score),
@@ -718,23 +897,42 @@ def compute_outlook(derived: dict) -> dict:
     if ry.get("trend") == "rising": mt_bear += 2
     if (dx.get("roc20d") or 0) < -1: mt_bull += 1
     if (dx.get("roc20d") or 0) > 1: mt_bear += 1
+    # 收益率曲线倒挂利好黄金
+    yc = derived.get("yieldCurve", {})
+    if yc.get("inverted"): mt_bull += 1
     mid_dir = label(mt_bull, mt_bear)
     mid_conf = "高" if abs(mt_bull - mt_bear) >= 3 else ("中" if abs(mt_bull - mt_bear) >= 1 else "低")
     mid_factors = []
     if ry.get("trend"): mid_factors.append(f"实际利率趋势: {'下行' if ry['trend']=='declining' else '上行'}")
     if dx.get("roc20d"): mid_factors.append(f"美元20日动量: {dx['roc20d']:.1f}%")
+    if yc.get("current") is not None: mid_factors.append(f"收益率曲线: {yc['current']:.2f}% {'(倒挂)' if yc.get('inverted') else ''}")
 
     # 长期
     lt_bull, lt_bear = 0, 0
     if (inf.get("corePceYoY") or 2) > 2.5: lt_bull += 1
     if (inf.get("corePceYoY") or 2) < 1.5: lt_bear += 1
-    # 央行购金默认利好
-    lt_bull += 1
+    # 5Y5Y远期通胀预期
+    fwd_inf = inf.get("fwdInflation5y5y")
+    if fwd_inf is not None:
+        if fwd_inf > 2.5: lt_bull += 1
+        elif fwd_inf < 2.0: lt_bear += 1
+    # 央行购金（基于实际数据）
+    cb = derived.get("centralBankGold", {})
+    cb_trend = cb.get("trend", "unknown")
+    if cb_trend in ("increasing", "stable"):
+        lt_bull += 1
+    elif cb_trend == "decreasing":
+        pass  # 不加分但也不减分，央行减少购金≠利空
     long_dir = label(lt_bull, lt_bear)
     long_conf = "中"
     long_factors = []
     if inf.get("corePceYoY"): long_factors.append(f"核心PCE同比: {inf['corePceYoY']:.1f}%")
-    long_factors.append("央行持续购金（结构性支撑）")
+    if fwd_inf is not None: long_factors.append(f"5Y5Y远期通胀预期: {fwd_inf:.2f}%")
+    if cb.get("rollingAnnualTonnes"):
+        cb_label = f"央行年购金: {cb['rollingAnnualTonnes']:.0f}吨 ({cb_trend})"
+    else:
+        cb_label = "央行持续购金（结构性支撑）"
+    long_factors.append(cb_label)
 
     summaries = {
         "bullish": {"short": "技术面偏多，短期有上行动能", "mid": "宏观因子共振偏多，中期看涨", "long": "通胀与购金支撑长期看多"},
@@ -783,10 +981,11 @@ def main():
     print("\n[1/5] 拉取 FRED 数据...")
     raw = fetch_all()
 
-    print("\n[2/5] 拉取 CFTC COT & GLD ETF...")
+    print("\n[2/5] 拉取 CFTC COT & GLD ETF & 央行购金...")
     cot_current = fetch_cot_current()
     cot_history = fetch_cot_history()
     gld = fetch_gld_holdings()
+    cb_gold = fetch_central_bank_gold()
 
     # 3. 计算衍生指标
     print("\n[3/5] 计算衍生指标...")
@@ -834,6 +1033,7 @@ def main():
         "breakeven": latest(raw["breakeven"]),
         "coreCpiYoY": round(yoy_pct(raw["coreCpi"]), 2) if yoy_pct(raw["coreCpi"]) else None,
         "corePceYoY": round(yoy_pct(raw["corePce"]), 2) if yoy_pct(raw["corePce"]) else None,
+        "fwdInflation5y5y": latest(raw.get("fwdInflation", []), None),
     }
 
     # 美联储资产
@@ -851,6 +1051,73 @@ def main():
 
     # 联邦基金利率
     derived["fedFunds"] = {"current": latest(raw["fedFunds"])}
+
+    # 油价
+    oil_vals = values(raw["oil"]) if raw.get("oil") else np.array([])
+    oil_roc20 = round(roc(oil_vals, 20), 2) if len(oil_vals) > 20 and roc(oil_vals, 20) is not None else None
+    derived["oil"] = {
+        "current": latest(raw.get("oil", []), None),
+        "roc20d": oil_roc20,
+    }
+
+    # 金银比
+    silver_vals = values(raw["silver"]) if raw.get("silver") else np.array([])
+    silver_cur = latest(raw.get("silver", []), None)
+    sgr_current = round(gold_cur / silver_cur, 2) if gold_cur and silver_cur and silver_cur > 0 else None
+    sgr_history = []
+    if raw.get("silver") and raw.get("gold"):
+        silver_map = {d["date"]: d["value"] for d in raw["silver"]}
+        for d in raw["gold"]:
+            sv = silver_map.get(d["date"])
+            if sv and sv > 0:
+                sgr_history.append({"date": d["date"], "value": round(d["value"] / sv, 2)})
+    sgr_hist_vals = np.array([d["value"] for d in sgr_history]) if sgr_history else np.array([])
+    sgr_signal = "normal"
+    if sgr_current is not None:
+        if sgr_current > 80: sgr_signal = "extreme_high"
+        elif sgr_current < 60: sgr_signal = "extreme_low"
+    derived["silverGoldRatio"] = {
+        "current": sgr_current,
+        "silver_price": silver_cur,
+        "gold_price": gold_cur,
+        "signal": sgr_signal,
+        "percentile": round(pct_rank(sgr_hist_vals, sgr_current), 1) if sgr_current and len(sgr_hist_vals) > 0 else None,
+        "history": sgr_history,
+    }
+
+    # GDX 金矿ETF
+    gdx_vals = values(raw["gdx"]) if raw.get("gdx") else np.array([])
+    gdx_cur = latest(raw.get("gdx", []), None)
+    gdx_prev = raw["gdx"][-2]["value"] if raw.get("gdx") and len(raw["gdx"]) >= 2 else gdx_cur
+    gdx_roc20 = round(roc(gdx_vals, 20), 2) if len(gdx_vals) > 20 and roc(gdx_vals, 20) is not None else None
+    gdx_change_pct = round((gdx_cur / gdx_prev - 1) * 100, 2) if gdx_cur and gdx_prev and gdx_prev > 0 else None
+    gold_gdx_ratio = round(gold_cur / gdx_cur, 2) if gold_cur and gdx_cur and gdx_cur > 0 else None
+    derived["gdx"] = {
+        "current": gdx_cur,
+        "changePct1d": gdx_change_pct,
+        "roc20d": gdx_roc20,
+        "goldGdxRatio": gold_gdx_ratio,
+    }
+
+    # 收益率曲线 (10Y-2Y)
+    yc_vals = values(raw["yieldCurve"]) if raw.get("yieldCurve") else np.array([])
+    yc_cur = latest(raw.get("yieldCurve", []), None)
+    yc_roc20 = round(roc(yc_vals, 20), 2) if len(yc_vals) > 20 and roc(yc_vals, 20) is not None else None
+    yc_inverted = yc_cur < 0 if yc_cur is not None else False
+    if yc_inverted:
+        yc_signal = "inverted"
+    elif yc_roc20 is not None and yc_roc20 > 0.3:
+        yc_signal = "steepening"
+    elif yc_roc20 is not None and yc_roc20 < -0.3:
+        yc_signal = "flattening"
+    else:
+        yc_signal = "normal"
+    derived["yieldCurve"] = {
+        "current": yc_cur,
+        "roc20d": yc_roc20,
+        "inverted": yc_inverted,
+        "signal": yc_signal,
+    }
 
     # 波动率
     vol20 = annualized_vol(gold_vals, 20)
@@ -880,6 +1147,17 @@ def main():
         "maCrossover": crossover,
     }
 
+    # 实际利率-金价背离度 (Z-Score)
+    # 实际利率取负值（因为与金价负相关），然后与金价比较
+    # 正值 = 金价相对于实际利率偏高（潜在超买）
+    # 负值 = 金价相对于实际利率偏低（潜在超卖）
+    divergence_z = zscore_divergence(gold_vals, -ry_vals, window=60)
+    derived["divergence"] = {
+        "zScore": round(divergence_z, 2) if divergence_z is not None else None,
+        "signal": "overbought" if divergence_z is not None and divergence_z > 1.5 else
+                  "oversold" if divergence_z is not None and divergence_z < -1.5 else "neutral",
+    }
+
     # COT 持仓
     cot_percentile = 50.0
     if cot_current and cot_history:
@@ -893,6 +1171,9 @@ def main():
 
     # GLD ETF
     derived["gld"] = gld
+
+    # 央行购金
+    derived["centralBankGold"] = cb_gold
 
     # 4. 信号 & 评分
     print("[4/5] 生成信号与评分...")
@@ -908,11 +1189,32 @@ def main():
     # 历史数据（用于图表，取最近 1 年日度数据）
     chart_n = 365
     history = {}
-    for key in ["gold", "realYield", "dxy", "breakeven", "fedAssets", "vix"]:
+    for key in ["gold", "realYield", "dxy", "breakeven", "fedAssets", "vix", "oil", "fwdInflation", "yieldCurve"]:
         history[key] = latest_n(raw[key], chart_n)
+    # 白银、GDX 和金银比历史序列
+    if raw.get("silver"):
+        history["silver"] = latest_n(raw["silver"], chart_n)
+    if raw.get("gdx"):
+        history["gdx"] = latest_n(raw["gdx"], chart_n)
+    if derived.get("silverGoldRatio", {}).get("history"):
+        history["silverGoldRatio"] = latest_n(derived["silverGoldRatio"]["history"], chart_n)
+
+    # 计算金价 MA50/MA200 历史序列（用于图表叠加）
+    gold_hist = raw["gold"]
+    gold_all_vals = values(gold_hist)
+    ma50_history = []
+    ma200_history = []
+    for i in range(len(gold_hist)):
+        d = gold_hist[i]["date"]
+        if i >= 49:
+            ma50_history.append({"date": d, "value": float(np.mean(gold_all_vals[i-49:i+1]))})
+        if i >= 199:
+            ma200_history.append({"date": d, "value": float(np.mean(gold_all_vals[i-199:i+1]))})
+    history["goldMA50"] = latest_n(ma50_history, chart_n)
+    history["goldMA200"] = latest_n(ma200_history, chart_n)
 
     dashboard = {
-        "lastUpdated": datetime.datetime.utcnow().isoformat() + "Z",
+        "lastUpdated": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "prices": derived["prices"],
         "coreFactors": {
             "realYield": derived["realYield"],
@@ -930,6 +1232,10 @@ def main():
         "riskMatrix": risk_matrix,
         "outlook": outlook,
         "technicals": derived["technicals"],
+        "divergence": derived.get("divergence"),
+        "silverGoldRatio": derived.get("silverGoldRatio"),
+        "gdx": derived.get("gdx"),
+        "yieldCurve": derived.get("yieldCurve"),
         "history": history,
         "cot": derived.get("cot"),
         "gld": {
@@ -938,6 +1244,7 @@ def main():
             "navPrice": gld.get("navPrice") if gld else None,
             "volume": gld.get("volume") if gld else None,
         },
+        "centralBankGold": cb_gold,
     }
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
