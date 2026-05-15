@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-05-14T22:54:53.786752+00:00",
+  "lastUpdated": "2026-05-15T22:52:50.867271+00:00",
   "prices": {
     "gold": {
-      "value": 4665.39990234375,
-      "change1d": -32.3,
-      "changePct1d": -0.69
+      "value": 4543.60009765625,
+      "change1d": -134.5,
+      "changePct1d": -2.88
     },
     "dxy": {
       "value": 118.0392,
@@ -13,9 +13,9 @@
   },
   "coreFactors": {
     "realYield": {
-      "current": 1.99,
-      "ma20": 1.935,
-      "ma60": 1.9093,
+      "current": 2.0,
+      "ma20": 1.9385,
+      "ma60": 1.9128,
       "trend": "rising"
     },
     "dollarIndex": {
@@ -24,17 +24,17 @@
       "trend": "declining"
     },
     "inflation": {
-      "breakeven": 2.47,
+      "breakeven": 2.49,
       "coreCpiYoY": 2.99,
       "corePceYoY": 3.2,
-      "fwdInflation5y5y": 2.24
+      "fwdInflation5y5y": 2.28
     },
     "fedBalance": {
       "current": 6728502.0,
       "weekOverWeekPct": 0.2831
     },
     "vix": {
-      "current": 17.87
+      "current": 17.26
     },
     "fedFunds": {
       "current": 3.63
@@ -45,7 +45,7 @@
       {
         "title": "50/200日均线金叉",
         "strength": 5,
-        "detail": "MA50($4741) > MA200($4313)"
+        "detail": "MA50($4731) > MA200($4319)"
       },
       {
         "title": "核心PCE同比 > 3%",
@@ -60,40 +60,34 @@
       {
         "title": "金价站上200日均线",
         "strength": 3,
-        "detail": "金价 $4665 > MA200 $4313"
+        "detail": "金价 $4544 > MA200 $4319"
       },
       {
         "title": "COT投机净多头低位（<20百分位）",
         "strength": 3,
-        "detail": "净多头:163303 百分位:14%，空头极端有反弹机会"
+        "detail": "净多头:171622 百分位:19%，空头极端有反弹机会"
       },
       {
         "title": "金银比偏低 (<60)",
         "strength": 2,
-        "detail": "当前金银比: 55.3，偏低水平，黄金相对白银仍有上行空间"
+        "detail": "当前金银比: 59.5，偏低水平，黄金相对白银仍有上行空间"
       }
     ],
-    "bearish": [
-      {
-        "title": "GLD ETF资金大幅流出",
-        "strength": 2,
-        "detail": "5日成交额变化: -16.2%，机构减仓"
-      }
-    ]
+    "bearish": []
   },
   "overallSignal": {
     "direction": "bullish",
     "label": "看多",
     "bullScore": 19,
-    "bearScore": 2
+    "bearScore": 0
   },
   "sentiment": {
-    "score": 44.8,
+    "score": 50.7,
     "label": "中性",
     "components": {
       "vix": {
-        "value": 17.87,
-        "score": 73.8
+        "value": 17.26,
+        "score": 75.8
       },
       "realYield": {
         "trend": "rising",
@@ -108,22 +102,22 @@
         "score": 65
       },
       "cot": {
-        "score": 13.8,
-        "specNetLong": 163303,
-        "percentile": 13.8,
-        "date": "2026-05-05"
+        "score": 19.4,
+        "specNetLong": 171622,
+        "percentile": 19.4,
+        "date": "2026-05-12"
       },
       "etfFlow": {
-        "score": 9.5,
+        "score": 41.4,
         "totalAssetsBln": 153.51,
-        "flow5dPct": -16.19
+        "flow5dPct": -3.43
       }
     }
   },
   "radar": [
     {
       "axis": "实际利率",
-      "value": 1.3
+      "value": 1.2
     },
     {
       "axis": "美元强弱",
@@ -131,7 +125,7 @@
     },
     {
       "axis": "通胀预期",
-      "value": 4.9
+      "value": 5.0
     },
     {
       "axis": "流动性",
@@ -139,15 +133,15 @@
     },
     {
       "axis": "避险需求",
-      "value": 2.6
+      "value": 2.4
     },
     {
       "axis": "资金流入",
-      "value": 1.2
+      "value": 2.8
     }
   ],
   "volatility": {
-    "current20d": 20.27,
+    "current20d": 21.49,
     "level": "high"
   },
   "riskMatrix": {
@@ -211,7 +205,8 @@
         "美元"
       ],
       "riskSignals": [
-        "油价上涨推高开采成本"
+        "油价上涨推高开采成本",
+        "GDX 近期大幅下跌"
       ],
       "oppSignals": [
         "金价上涨放大矿企利润"
@@ -225,12 +220,12 @@
       "confidence": "高",
       "factors": [
         "MA交叉: 金叉",
-        "RSI(14): 45.7",
+        "RSI(14): 41.1",
         "金价>200日均线"
       ],
       "support": [
-        4543.0,
-        4651.0
+        4542.0,
+        4643.0
       ],
       "resistance": [
         5054.0,
@@ -244,7 +239,7 @@
       "factors": [
         "实际利率趋势: 上行",
         "美元20日动量: -0.7%",
-        "收益率曲线: 0.48% "
+        "收益率曲线: 0.50% "
       ],
       "summary": "利率美元双压，中期承压"
     },
@@ -253,19 +248,19 @@
       "confidence": "中",
       "factors": [
         "核心PCE同比: 3.2%",
-        "5Y5Y远期通胀预期: 2.24%",
+        "5Y5Y远期通胀预期: 2.28%",
         "央行年购金: 1021吨 (stable)"
       ],
       "summary": "通胀与购金支撑长期看多"
     }
   },
   "technicals": {
-    "ma50": 4740.79,
-    "ma200": 4312.79,
-    "rsi14": 45.7,
+    "ma50": 4730.61,
+    "ma200": 4319.09,
+    "rsi14": 41.1,
     "support": [
-      4543.0,
-      4651.0
+      4542.0,
+      4643.0
     ],
     "resistance": [
       5054.0,
@@ -274,20 +269,16 @@
     "maCrossover": "golden"
   },
   "divergence": {
-    "zScore": 0.3,
+    "zScore": -0.08,
     "signal": "neutral"
   },
   "silverGoldRatio": {
-    "current": 55.29,
-    "silver_price": 84.375,
-    "gold_price": 4665.39990234375,
+    "current": 59.55,
+    "silver_price": 76.29499816894531,
+    "gold_price": 4543.60009765625,
     "signal": "extreme_low",
-    "percentile": 2.1,
+    "percentile": 4.4,
     "history": [
-      {
-        "date": "2023-05-15",
-        "value": 83.64
-      },
       {
         "date": "2023-05-16",
         "value": 83.77
@@ -3302,28 +3293,28 @@
       },
       {
         "date": "2026-05-14",
-        "value": 55.29
+        "value": 55.09
+      },
+      {
+        "date": "2026-05-15",
+        "value": 59.55
       }
     ]
   },
   "gdx": {
-    "current": 93.94999694824219,
-    "changePct1d": -2.37,
-    "roc20d": -3.8,
-    "goldGdxRatio": 49.66
+    "current": 87.3499984741211,
+    "changePct1d": -7.03,
+    "roc20d": -12.95,
+    "goldGdxRatio": 52.02
   },
   "yieldCurve": {
-    "current": 0.48,
-    "roc20d": -9.43,
+    "current": 0.5,
+    "roc20d": -9.09,
     "inverted": false,
     "signal": "flattening"
   },
   "history": {
     "gold": [
-      {
-        "date": "2024-12-02",
-        "value": 2634.89990234375
-      },
       {
         "date": "2024-12-03",
         "value": 2644.699951171875
@@ -4778,14 +4769,14 @@
       },
       {
         "date": "2026-05-14",
-        "value": 4665.39990234375
+        "value": 4678.10009765625
+      },
+      {
+        "date": "2026-05-15",
+        "value": 4543.60009765625
       }
     ],
     "realYield": [
-      {
-        "date": "2024-11-26",
-        "value": 2.02
-      },
       {
         "date": "2024-11-27",
         "value": 1.99
@@ -6241,6 +6232,10 @@
       {
         "date": "2026-05-13",
         "value": 1.99
+      },
+      {
+        "date": "2026-05-14",
+        "value": 2.0
       }
     ],
     "dxy": [
@@ -7707,14 +7702,6 @@
     ],
     "breakeven": [
       {
-        "date": "2024-11-26",
-        "value": 2.28
-      },
-      {
-        "date": "2024-11-27",
-        "value": 2.26
-      },
-      {
         "date": "2024-11-29",
         "value": 2.26
       },
@@ -9165,6 +9152,14 @@
       {
         "date": "2026-05-13",
         "value": 2.47
+      },
+      {
+        "date": "2026-05-14",
+        "value": 2.47
+      },
+      {
+        "date": "2026-05-15",
+        "value": 2.49
       }
     ],
     "fedAssets": [
@@ -9798,10 +9793,6 @@
       }
     ],
     "vix": [
-      {
-        "date": "2024-12-11",
-        "value": 13.58
-      },
       {
         "date": "2024-12-12",
         "value": 13.92
@@ -11257,13 +11248,13 @@
       {
         "date": "2026-05-13",
         "value": 17.87
+      },
+      {
+        "date": "2026-05-14",
+        "value": 17.26
       }
     ],
     "oil": [
-      {
-        "date": "2024-12-02",
-        "value": 68.0999984741211
-      },
       {
         "date": "2024-12-03",
         "value": 69.94000244140625
@@ -12718,18 +12709,14 @@
       },
       {
         "date": "2026-05-14",
-        "value": 101.63999938964844
+        "value": 101.16999816894531
+      },
+      {
+        "date": "2026-05-15",
+        "value": 101.16000366210938
       }
     ],
     "fwdInflation": [
-      {
-        "date": "2024-11-26",
-        "value": 2.23
-      },
-      {
-        "date": "2024-11-27",
-        "value": 2.2
-      },
       {
         "date": "2024-11-29",
         "value": 2.19
@@ -14181,17 +14168,17 @@
       {
         "date": "2026-05-13",
         "value": 2.24
+      },
+      {
+        "date": "2026-05-14",
+        "value": 2.27
+      },
+      {
+        "date": "2026-05-15",
+        "value": 2.28
       }
     ],
     "yieldCurve": [
-      {
-        "date": "2024-11-26",
-        "value": 0.09
-      },
-      {
-        "date": "2024-11-27",
-        "value": 0.06
-      },
       {
         "date": "2024-11-29",
         "value": 0.05
@@ -15643,13 +15630,17 @@
       {
         "date": "2026-05-13",
         "value": 0.48
+      },
+      {
+        "date": "2026-05-14",
+        "value": 0.47
+      },
+      {
+        "date": "2026-05-15",
+        "value": 0.5
       }
     ],
     "silver": [
-      {
-        "date": "2024-12-02",
-        "value": 30.448999404907227
-      },
       {
         "date": "2024-12-03",
         "value": 31.07699966430664
@@ -17104,21 +17095,21 @@
       },
       {
         "date": "2026-05-14",
-        "value": 84.375
+        "value": 84.91200256347656
+      },
+      {
+        "date": "2026-05-15",
+        "value": 76.29499816894531
       }
     ],
     "gdx": [
-      {
-        "date": "2024-11-27",
-        "value": 36.74854278564453
-      },
       {
         "date": "2024-11-29",
         "value": 36.954612731933594
       },
       {
         "date": "2024-12-02",
-        "value": 36.14015579223633
+        "value": 36.140159606933594
       },
       {
         "date": "2024-12-03",
@@ -17130,11 +17121,11 @@
       },
       {
         "date": "2024-12-05",
-        "value": 36.82704544067383
+        "value": 36.82704162597656
       },
       {
         "date": "2024-12-06",
-        "value": 36.13034439086914
+        "value": 36.130340576171875
       },
       {
         "date": "2024-12-09",
@@ -17158,7 +17149,7 @@
       },
       {
         "date": "2024-12-16",
-        "value": 35.737831115722656
+        "value": 35.73783493041992
       },
       {
         "date": "2024-12-17",
@@ -17170,7 +17161,7 @@
       },
       {
         "date": "2024-12-19",
-        "value": 33.74585723876953
+        "value": 33.7458610534668
       },
       {
         "date": "2024-12-20",
@@ -18567,13 +18558,13 @@
       {
         "date": "2026-05-14",
         "value": 93.94999694824219
+      },
+      {
+        "date": "2026-05-15",
+        "value": 87.3499984741211
       }
     ],
     "silverGoldRatio": [
-      {
-        "date": "2024-12-02",
-        "value": 86.53
-      },
       {
         "date": "2024-12-03",
         "value": 85.1
@@ -20028,14 +20019,14 @@
       },
       {
         "date": "2026-05-14",
-        "value": 55.29
+        "value": 55.09
+      },
+      {
+        "date": "2026-05-15",
+        "value": 59.55
       }
     ],
     "goldMA50": [
-      {
-        "date": "2024-12-02",
-        "value": 2667.26400390625
-      },
       {
         "date": "2024-12-03",
         "value": 2667.6280029296877
@@ -21490,14 +21481,14 @@
       },
       {
         "date": "2026-05-14",
-        "value": 4740.7919921875
+        "value": 4741.04599609375
+      },
+      {
+        "date": "2026-05-15",
+        "value": 4730.612001953125
       }
     ],
     "goldMA200": [
-      {
-        "date": "2024-12-02",
-        "value": 2422.8444940185545
-      },
       {
         "date": "2024-12-03",
         "value": 2426.010493774414
@@ -22952,33 +22943,37 @@
       },
       {
         "date": "2026-05-14",
-        "value": 4312.787487792969
+        "value": 4312.850988769531
+      },
+      {
+        "date": "2026-05-15",
+        "value": 4319.089989013672
       }
     ]
   },
   "cot": {
     "current": {
-      "date": "2026-05-05",
-      "openInterest": 367932,
-      "nonCommLong": 211814,
-      "nonCommShort": 48511,
-      "nonCommSpreads": 48636,
-      "commLong": 58230,
-      "commShort": 257165,
-      "specNetLong": 163303,
-      "specNetLongPct": 44.38,
-      "chgOpenInterest": -1598,
-      "chgNonCommLong": -4,
-      "chgNonCommShort": -3736
+      "date": "2026-05-12",
+      "openInterest": 376496,
+      "nonCommLong": 219793,
+      "nonCommShort": 48171,
+      "nonCommSpreads": 49027,
+      "commLong": 57725,
+      "commShort": 267983,
+      "specNetLong": 171622,
+      "specNetLongPct": 45.58,
+      "chgOpenInterest": 8564,
+      "chgNonCommLong": 7979,
+      "chgNonCommShort": -340
     },
-    "historyCount": 123,
-    "specNetLongPercentile": 13.8
+    "historyCount": 124,
+    "specNetLongPercentile": 19.4
   },
   "gld": {
     "totalAssetsBln": 153.51,
-    "flow5dPct": -16.19,
-    "navPrice": 429.3279,
-    "volume": 3958755
+    "flow5dPct": -3.43,
+    "navPrice": 429.9982,
+    "volume": 9201453
   },
   "centralBankGold": {
     "latestQuarter": "2025-Q4",
