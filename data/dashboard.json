@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-28T05:56:53.324420+00:00",
+  "lastUpdated": "2026-08-29T03:28:34.876088+00:00",
   "prices": {
     "gold": {
-      "value": 4625.2998046875,
-      "change1d": 15.6,
-      "changePct1d": 0.34
+      "value": 4504.10009765625,
+      "change1d": -105.6,
+      "changePct1d": -2.29
     },
     "dxy": {
       "value": 118.0628,
@@ -14,8 +14,8 @@
   "coreFactors": {
     "realYield": {
       "current": 2.34,
-      "ma20": 2.401,
-      "ma60": 2.31,
+      "ma20": 2.3975,
+      "ma60": 2.3145,
       "trend": "rising"
     },
     "dollarIndex": {
@@ -24,17 +24,17 @@
       "trend": "declining"
     },
     "inflation": {
-      "breakeven": 2.33,
+      "breakeven": 2.31,
       "coreCpiYoY": 2.79,
       "corePceYoY": 3.34,
-      "fwdInflation5y5y": 2.35
+      "fwdInflation5y5y": 2.32
     },
     "fedBalance": {
       "current": 6730912.0,
       "weekOverWeekPct": -0.2192
     },
     "vix": {
-      "current": 15.21
+      "current": 14.51
     },
     "fedFunds": {
       "current": 3.63
@@ -53,26 +53,26 @@
         "detail": "核心PCE同比: 3.3%，高通胀支撑黄金"
       },
       {
-        "title": "金价站上200日均线",
-        "strength": 3,
-        "detail": "金价 $4625 > MA200 $4514"
-      },
-      {
         "title": "GLD ETF资金大幅流入",
         "strength": 2,
-        "detail": "5日成交额变化: +11.8%，机构加仓"
+        "detail": "5日成交额变化: +11.7%，机构加仓"
       }
     ],
     "bearish": [
       {
         "title": "50/200日均线死叉",
         "strength": 5,
-        "detail": "MA50($4212) < MA200($4514)"
+        "detail": "MA50($4209) < MA200($4514)"
       },
       {
         "title": "实际利率高位且上行",
         "strength": 4,
         "detail": "10Y TIPS: 2.34%，高实际利率压制黄金"
+      },
+      {
+        "title": "金价跌破200日均线",
+        "strength": 4,
+        "detail": "金价 $4504 < MA200 $4514"
       },
       {
         "title": "美联储缩表（QT 加速）",
@@ -82,51 +82,46 @@
       {
         "title": "实际利率-金价背离（超买）",
         "strength": 3,
-        "detail": "背离Z-Score: 2.34，金价相对实际利率偏高"
-      },
-      {
-        "title": "收益率曲线急陡",
-        "strength": 2,
-        "detail": "10Y-2Y利差20日变化: +4.44%，曲线急陡化反映风险偏好回升"
+        "detail": "背离Z-Score: 1.72，金价相对实际利率偏高"
       }
     ]
   },
   "overallSignal": {
     "direction": "bearish",
     "label": "看空",
-    "bullScore": 11,
-    "bearScore": 17
+    "bullScore": 8,
+    "bearScore": 19
   },
   "sentiment": {
-    "score": 64.9,
+    "score": 65.4,
     "label": "贪婪",
     "components": {
       "vix": {
-        "value": 15.21,
-        "score": 82.6
+        "value": 14.51,
+        "score": 85.0
       },
       "realYield": {
         "trend": "rising",
-        "diff": 0.091,
-        "score": 34.8
+        "diff": 0.083,
+        "score": 36.2
       },
       "dxy": {
         "roc20d": -2.19,
         "score": 86.5
       },
       "technicals": {
-        "score": 65
+        "score": 40
       },
       "cot": {
-        "score": 53.6,
-        "specNetLong": 222189,
-        "percentile": 53.6,
-        "date": "2026-08-18"
+        "score": 69.1,
+        "specNetLong": 243334,
+        "percentile": 69.1,
+        "date": "2026-08-25"
       },
       "etfFlow": {
-        "score": 79.6,
+        "score": 79.3,
         "totalAssetsBln": 130.32,
-        "flow5dPct": 11.85
+        "flow5dPct": 11.73
       }
     }
   },
@@ -141,7 +136,7 @@
     },
     {
       "axis": "通胀预期",
-      "value": 4.2
+      "value": 4.1
     },
     {
       "axis": "流动性",
@@ -149,16 +144,16 @@
     },
     {
       "axis": "避险需求",
-      "value": 1.7
+      "value": 1.5
     },
     {
       "axis": "资金流入",
-      "value": 6.4
+      "value": 7.3
     }
   ],
   "volatility": {
-    "current20d": 19.7,
-    "level": "medium"
+    "current20d": 22.23,
+    "level": "high"
   },
   "riskMatrix": {
     "physical": {
@@ -195,13 +190,14 @@
     },
     "futures": {
       "risk": "high",
-      "score": 75,
+      "score": 90,
       "keyFactors": [
         "利率预期",
         "COT持仓",
         "波动率"
       ],
       "riskSignals": [
+        "波动率偏高，杠杆风险大",
         "利率上行压制"
       ],
       "oppSignals": [
@@ -231,11 +227,11 @@
   "outlook": {
     "shortTerm": {
       "direction": "bearish",
-      "confidence": "中",
+      "confidence": "高",
       "factors": [
         "MA交叉: 死叉",
-        "RSI(14): 74.3",
-        "金价>200日均线"
+        "RSI(14): 61.2",
+        "金价<200日均线"
       ],
       "support": [
         4023.0,
@@ -243,7 +239,7 @@
       ],
       "resistance": [
         4362.0,
-        4524.0
+        4505.0
       ],
       "summary": "技术面偏空，短期需谨慎"
     },
@@ -253,7 +249,7 @@
       "factors": [
         "实际利率趋势: 上行",
         "美元20日动量: -2.2%",
-        "收益率曲线: 0.47% "
+        "收益率曲线: 0.39% "
       ],
       "summary": "利率美元双压，中期承压"
     },
@@ -262,41 +258,37 @@
       "confidence": "中",
       "factors": [
         "核心PCE同比: 3.3%",
-        "5Y5Y远期通胀预期: 2.35%",
+        "5Y5Y远期通胀预期: 2.32%",
         "央行年购金: 1021吨 (stable)"
       ],
       "summary": "通胀与购金支撑长期看多"
     }
   },
   "technicals": {
-    "ma50": 4211.72,
-    "ma200": 4514.13,
-    "rsi14": 74.3,
+    "ma50": 4209.3,
+    "ma200": 4513.53,
+    "rsi14": 61.2,
     "support": [
       4023.0,
       4066.0
     ],
     "resistance": [
       4362.0,
-      4524.0
+      4505.0
     ],
     "maCrossover": "death"
   },
   "divergence": {
-    "zScore": 2.34,
+    "zScore": 1.72,
     "signal": "overbought"
   },
   "silverGoldRatio": {
-    "current": 66.59,
-    "silver_price": 69.45500183105469,
-    "gold_price": 4625.2998046875,
+    "current": 67.14,
+    "silver_price": 67.08999633789062,
+    "gold_price": 4504.10009765625,
     "signal": "normal",
-    "percentile": 17.1,
+    "percentile": 17.8,
     "history": [
-      {
-        "date": "2023-08-29",
-        "value": 78.16
-      },
       {
         "date": "2023-08-30",
         "value": 78.61
@@ -3311,21 +3303,21 @@
       },
       {
         "date": "2026-08-28",
-        "value": 66.59
+        "value": 67.14
       }
     ]
   },
   "gdx": {
-    "current": 103.69000244140625,
-    "changePct1d": 1.24,
-    "roc20d": 35.05,
-    "goldGdxRatio": 44.61
+    "current": 99.6500015258789,
+    "changePct1d": -3.9,
+    "roc20d": 34.48,
+    "goldGdxRatio": 45.2
   },
   "yieldCurve": {
-    "current": 0.47,
-    "roc20d": 4.44,
+    "current": 0.39,
+    "roc20d": -17.02,
     "inverted": false,
-    "signal": "steepening"
+    "signal": "flattening"
   },
   "history": {
     "gold": [
@@ -4787,14 +4779,10 @@
       },
       {
         "date": "2026-08-28",
-        "value": 4625.2998046875
+        "value": 4504.10009765625
       }
     ],
     "realYield": [
-      {
-        "date": "2025-03-13",
-        "value": 1.98
-      },
       {
         "date": "2025-03-14",
         "value": 2.01
@@ -6249,6 +6237,10 @@
       },
       {
         "date": "2026-08-26",
+        "value": 2.34
+      },
+      {
+        "date": "2026-08-27",
         "value": 2.34
       }
     ],
@@ -7716,10 +7708,6 @@
     ],
     "breakeven": [
       {
-        "date": "2025-03-14",
-        "value": 2.3
-      },
-      {
         "date": "2025-03-17",
         "value": 2.29
       },
@@ -9174,6 +9162,10 @@
       {
         "date": "2026-08-27",
         "value": 2.33
+      },
+      {
+        "date": "2026-08-28",
+        "value": 2.31
       }
     ],
     "fedAssets": [
@@ -9807,10 +9799,6 @@
       }
     ],
     "vix": [
-      {
-        "date": "2025-03-28",
-        "value": 21.65
-      },
       {
         "date": "2025-03-31",
         "value": 22.28
@@ -11266,6 +11254,10 @@
       {
         "date": "2026-08-26",
         "value": 15.21
+      },
+      {
+        "date": "2026-08-27",
+        "value": 14.51
       }
     ],
     "oil": [
@@ -12727,14 +12719,10 @@
       },
       {
         "date": "2026-08-28",
-        "value": 83.22000122070312
+        "value": 83.44000244140625
       }
     ],
     "fwdInflation": [
-      {
-        "date": "2025-03-14",
-        "value": 2.12
-      },
       {
         "date": "2025-03-17",
         "value": 2.1
@@ -14190,13 +14178,13 @@
       {
         "date": "2026-08-27",
         "value": 2.35
+      },
+      {
+        "date": "2026-08-28",
+        "value": 2.32
       }
     ],
     "yieldCurve": [
-      {
-        "date": "2025-03-14",
-        "value": 0.29
-      },
       {
         "date": "2025-03-17",
         "value": 0.25
@@ -15652,6 +15640,10 @@
       {
         "date": "2026-08-27",
         "value": 0.47
+      },
+      {
+        "date": "2026-08-28",
+        "value": 0.39
       }
     ],
     "silver": [
@@ -17113,14 +17105,10 @@
       },
       {
         "date": "2026-08-28",
-        "value": 69.45500183105469
+        "value": 67.08999633789062
       }
     ],
     "gdx": [
-      {
-        "date": "2025-03-17",
-        "value": 44.248634338378906
-      },
       {
         "date": "2025-03-18",
         "value": 44.526611328125
@@ -18576,6 +18564,10 @@
       {
         "date": "2026-08-27",
         "value": 103.69000244140625
+      },
+      {
+        "date": "2026-08-28",
+        "value": 99.6500015258789
       }
     ],
     "silverGoldRatio": [
@@ -20037,7 +20029,7 @@
       },
       {
         "date": "2026-08-28",
-        "value": 66.59
+        "value": 67.14
       }
     ],
     "goldMA50": [
@@ -21499,7 +21491,7 @@
       },
       {
         "date": "2026-08-28",
-        "value": 4211.7239990234375
+        "value": 4209.300004882813
       }
     ],
     "goldMA200": [
@@ -22961,33 +22953,33 @@
       },
       {
         "date": "2026-08-28",
-        "value": 4514.134990234375
+        "value": 4513.528991699219
       }
     ]
   },
   "cot": {
     "current": {
-      "date": "2026-08-18",
-      "openInterest": 406260,
-      "nonCommLong": 256902,
-      "nonCommShort": 34713,
-      "nonCommSpreads": 28961,
-      "commLong": 69050,
-      "commShort": 327468,
-      "specNetLong": 222189,
-      "specNetLongPct": 54.69,
-      "chgOpenInterest": 5951,
-      "chgNonCommLong": 5966,
-      "chgNonCommShort": 1717
+      "date": "2026-08-25",
+      "openInterest": 427957,
+      "nonCommLong": 277159,
+      "nonCommShort": 33825,
+      "nonCommSpreads": 33620,
+      "commLong": 62453,
+      "commShort": 342038,
+      "specNetLong": 243334,
+      "specNetLongPct": 56.86,
+      "chgOpenInterest": 21697,
+      "chgNonCommLong": 20257,
+      "chgNonCommShort": -888
     },
-    "historyCount": 138,
-    "specNetLongPercentile": 53.6
+    "historyCount": 139,
+    "specNetLongPercentile": 69.1
   },
   "gld": {
     "totalAssetsBln": 130.32,
-    "flow5dPct": 11.85,
+    "flow5dPct": 11.73,
     "navPrice": 424.78397,
-    "volume": 7024831
+    "volume": 24358092
   },
   "centralBankGold": {
     "latestQuarter": "2025-Q4",
